@@ -9,14 +9,14 @@ import Loading from "./Loading";
 import "./ChooseProposalType.css";
 import { RouteComponentProps } from "react-router-dom";
 
-export const Categories = false; /*{
+export const Categories = {
   storage: "Storage",
   council: "Council",
   validators: "Validators",
   cwg: "Content Working Group",
   other: "Other"
 } as const;
-*/
+
 export type Category = typeof Categories[keyof typeof Categories];
 
 export default function ChooseProposalType(props: RouteComponentProps) {
