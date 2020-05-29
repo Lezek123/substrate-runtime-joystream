@@ -22,7 +22,7 @@ import {
   RuntimeUpgradeForm
 } from "./forms";
 
-interface Props extends AppProps, I18nProps {}
+interface Props extends AppProps, I18nProps {};
 
 function App(props: Props): React.ReactElement<Props> {
   const { t, basePath } = props;
