@@ -17,7 +17,7 @@ import { PromiseComponent } from '@polkadot/joy-utils/react/components';
 type BodyProps = {
   title: string;
   description: string;
-  params: any[];
+  params: string;
   type: ProposalType;
   iAmProposer: boolean;
   proposalId: number | ProposalId;
