@@ -180,6 +180,10 @@ export default class Api {
             throw new Error(`Group lead profile not found! (member id: ${lead.member_id.toNumber()})`);
         }
 
+        if (lead.something) {
+            console.log('Something');
+        }
+
         return { lead, profile };
     }
 

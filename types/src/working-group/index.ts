@@ -30,6 +30,10 @@ export class Lead extends JoyStruct<ILead> {
   get role_account_id(): AccountId {
     return this.getField<AccountId>('role_account_id')
   }
+
+  get something(): string {
+    return 'Something';
+  }
 };
 
 export class WorkerApplicationId extends ApplicationId { };
