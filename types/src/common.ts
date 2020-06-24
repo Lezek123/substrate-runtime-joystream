@@ -40,7 +40,7 @@ export class BlockAndTime extends Struct {
     }
 }
 
-export function getTextPropAsString(struct: Struct, fieldName: string): string {
+export function getTextPropAsString(struct: Struct, fieldName: string): number {
     return (struct.get(fieldName) as Text).toString();
 }
 
