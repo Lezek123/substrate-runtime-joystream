@@ -10,6 +10,9 @@ import chalk from 'chalk';
 import { NameValueObj } from '../../Types';
 import inquirer from 'inquirer';
 import ApiCommandBase from '../../base/ApiCommandBase';
+import { Test } from './test';
+
+Test;
 
 // Command flags type
 type ApiInspectFlags = {
