@@ -40,7 +40,7 @@ export default class Api {
         this._api = originalApi;
     }
 
-    public getOriginalApi(): ApiPromise {
+    public getOriginalApi(): Api {
         return this._api;
     }
 
