@@ -3,6 +3,9 @@ import { BlockNumber, Moment } from '@polkadot/types/interfaces';
 import { Codec } from "@polkadot/types/types";
 import { JoyStruct } from './JoyStruct';
 export { JoyStruct } from './JoyStruct';
+import { ModerationAction } from './forum';
+
+export class CircularDependency extends ModerationAction {}
 
 // Treat a BTreeSet as a Vec since it is encoded in the same way
 export class BTreeSet<T extends Codec> extends Vec<T> {}
