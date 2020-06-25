@@ -12,4 +12,4 @@ export default ([
     icon: 'comment alternate outline',
     name: 'forum'
   }
-] as Routes);
+]);
