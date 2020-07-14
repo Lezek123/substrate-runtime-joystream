@@ -18,9 +18,9 @@ import { MemberId } from '@joystream/types/members';
 import { u32, u64 } from '@polkadot/types/';
 import { BalanceOf } from '@polkadot/types/interfaces';
 
-import { includeKeys, bytesToString } from '../functions/misc';
+import { bytesToString } from '../functions/misc';
 import _ from 'lodash';
-import proposalsConsts from '../consts/proposals';
+import { metadata as proposalsConsts, apiMethods as proposalsApiMethods } from '../consts/proposals';
 import { FIRST_MEMBER_ID } from '../consts/members';
 
 import { ApiPromise } from '@polkadot/api';
@@ -153,34 +153,15 @@ export default class ProposalsTransport extends BaseTransport {
     };
   }
 
-  async fetchProposalMethodsFromCodex (includeKey: string) {
-    const methods = includeKeys(this.proposalsCodex, includeKey);
-    // methods = [proposalTypeVotingPeriod...]
-    return methods.reduce(async (prevProm, method) => {
-      const obj = await prevProm;
-      const period = (await this.proposalsCodex[method]()) as u32;
-      // setValidatorCountProposalVotingPeriod to SetValidatorCount
-      const key = _.words(_.startCase(method))
-        .slice(0, -3)
-        .map((w, i) => (i === 0 ? w.slice(0, 1).toUpperCase() + w.slice(1) : w))
-        .join('') as ProposalType;
-
-      return { ...obj, [`${key}`]: period.toNumber() };
-    }, Promise.resolve({}) as Promise<{ [k in ProposalType]: number }>);
-  }
-
-  async proposalTypesGracePeriod (): Promise<{ [k in ProposalType]: number }> {
-    return this.fetchProposalMethodsFromCodex('GracePeriod');
-  }
-
-  async proposalTypesVotingPeriod (): Promise<{ [k in ProposalType]: number }> {
-    return this.fetchProposalMethodsFromCodex('VotingPeriod');
-  }
-
   async parametersFromProposalType (type: ProposalType) {
-    const votingPeriod = (await this.proposalTypesVotingPeriod())[type];
-    const gracePeriod = (await this.proposalTypesGracePeriod())[type];
-    // Currently it's same for all types, but this will change soon
+    const methods = proposalsApiMethods[type];
+    let votingPeriod = 0;
+    let gracePeriod = 0;
+    if (methods) {
+      votingPeriod = ((await this.proposalsCodex[methods.votingPeriod]()) as u32).toNumber();
+      gracePeriod = ((await this.proposalsCodex[methods.gracePeriod]()) as u32).toNumber();
+    }
+    // Currently it's same for all types, but this will change soon (?)
     const cancellationFee = this.cancellationFee();
     return {
       type,
