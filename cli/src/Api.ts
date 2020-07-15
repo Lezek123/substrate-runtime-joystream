@@ -75,7 +75,7 @@ export default class Api {
     const oldMetadata = await oldApi.rpc.state.getMetadata();
     oldApi.disconnect();
 
-    // 2. Get current node info in order to create "metadataKey"
+    // 2. Get current (Nicaea) node info in order to create "metadataKey"
     const newWsProvider = new WsProvider(apiUri);
     registerJoystreamTypes();
     const newApi = await ApiPromise.create({ provider: newWsProvider });

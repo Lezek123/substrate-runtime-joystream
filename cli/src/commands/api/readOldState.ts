@@ -20,7 +20,16 @@ export default class ApiReadOldState extends StateAwareCommandBase {
 
   async run() {
     console.log('Trying to query old api method (dataDirectory.primaryLiaisonAccountId)...')
-    const res = await this.getApi().query.dataDirectory.primaryLiaisonAccountId();
-    console.log('Result:', res);
+
+    const currentBlock = await this.getApi().derive.chain.bestNumber();
+    console.log('Current block', currentBlock.toNumber());
+
+    const blockHash1 = await this.getApi().rpc.chain.getBlockHash(1);
+    const accAt1 = await this.getApi().query.dataDirectory.primaryLiaisonAccountId.at(blockHash1);
+    console.log('dataDirectory.primaryLiaisonAccountId at block 1:', accAt1.toJSON());
+
+    const blockHash10 = await this.getApi().rpc.chain.getBlockHash(20);
+    const accAt10 = await this.getApi().query.dataDirectory.primaryLiaisonAccountId.at(blockHash10);
+    console.log('dataDirectory.primaryLiaisonAccountId at block 20:', accAt10.toJSON());
   }
 }
