@@ -1,5 +1,6 @@
 import BN from 'bn.js'
 import { registerJoystreamTypes } from '@joystream/types/'
+import { registerJoystreamTypes as registerConstantinopoleTypes } from '@constantinopole/types';
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { QueryableStorageMultiArg } from '@polkadot/api/types'
 import { formatBalance } from '@polkadot/util'
@@ -43,7 +44,7 @@ import { MemberId, Profile } from '@joystream/types/members'
 import { RewardRelationship, RewardRelationshipId } from '@joystream/types/recurring-rewards'
 import { Stake, StakeId } from '@joystream/types/stake'
 import { LinkageResult } from '@polkadot/types/codec/Linkage'
-
+import MetadataVersioned from '@polkadot/types/Metadata/MetadataVersioned';
 import { InputValidationLengthConstraint } from '@joystream/types/common'
 
 export const DEFAULT_API_URI = 'wss://rome-rpc-endpoint.joystream.org:9944/'
@@ -66,6 +67,33 @@ export default class Api {
     return this._api
   }
 
+  private static async initApiOldState(apiUri: string = DEFAULT_API_URI): Promise<ApiPromise> {
+    // 1. Get old api metadata
+    const oldNodeWsProvider = new WsProvider('wss://rome-rpc-endpoint.joystream.org:9944/');
+    registerConstantinopoleTypes();
+    const oldApi = await ApiPromise.create({ provider: oldNodeWsProvider });
+    const oldMetadata = await oldApi.rpc.state.getMetadata();
+    oldApi.disconnect();
+
+    // 2. Get current node info in order to create "metadataKey"
+    const newWsProvider = new WsProvider(apiUri);
+    registerJoystreamTypes();
+    const newApi = await ApiPromise.create({ provider: newWsProvider });
+    const [genesisHash, runtimeVersion] = await Promise.all([
+        newApi.rpc.chain.getBlockHash(0),
+        newApi.rpc.state.getRuntimeVersion()
+    ]);
+    // Create metadata key required by @polkadot/api and use it to create "metadataArg"
+    const metadataKey = `${genesisHash}-${runtimeVersion.specVersion}`;
+    const metadataArg = { [metadataKey]: new MetadataVersioned(oldMetadata.toJSON()).toHex() };
+    newApi.disconnect();
+
+    // 3. Create final api (current node, old metadata and types)
+    const wsProvider = new WsProvider(apiUri);
+    registerConstantinopoleTypes();
+    return await ApiPromise.create({ provider: wsProvider, metadata: metadataArg });
+  }
+
   private static async initApi(apiUri: string = DEFAULT_API_URI): Promise<ApiPromise> {
     const wsProvider: WsProvider = new WsProvider(apiUri)
     registerJoystreamTypes()
@@ -86,8 +114,8 @@ export default class Api {
     return api
   }
 
-  static async create(apiUri: string = DEFAULT_API_URI): Promise<Api> {
-    const originalApi: ApiPromise = await Api.initApi(apiUri)
+  static async create(apiUri: string = DEFAULT_API_URI, oldState: boolean = false): Promise<Api> {
+    const originalApi: ApiPromise = !oldState ? await Api.initApi(apiUri) : await Api.initApiOldState(apiUri);
     return new Api(originalApi)
   }
 

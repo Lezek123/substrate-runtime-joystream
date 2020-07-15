@@ -1458,6 +1458,16 @@
     lodash "^4.17.15"
     moment "^2.24.0"
 
+"@constantinopole/types@npm:@joystream/types@^0.10.0":
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/@joystream/types/-/types-0.10.0.tgz#7e98ef221410b26a7d952cfc3d1c03d28395ad69"
+  integrity sha512-RDZizqGKWGYpLR5PnUWM4aGa7InpWNh2Txlr7Al3ROFYOHoyQf62/omPfEz29F6scwlFxysOdmEfQaLeVRaUxA==
+  dependencies:
+    "@polkadot/types" "^0.96.1"
+    "@types/vfile" "^4.0.0"
+    ajv "^6.11.0"
+    lodash "^4.17.15"
+
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
