@@ -47,15 +47,15 @@ const initVstore = async (api, contentLead) => {
     return
   }
 
-  const classes = require('../../../../devops/vstore/classes.json')
-  const entities = require('../../../../devops/vstore/entities.json')
+  const classes = require('../../../../../devops/vstore/classes.json')
+  const entities = require('../../../../../devops/vstore/entities.json')
 
   debug('Initializing Content Directory')
 
   // batch createClass calls into a single block
   debug('creating classes...')
 
-  const createClasses = classes.filter(call => {
+  const createClasses = classes.filter((call) => {
     return call.methodName === 'createClass'
   })
 
@@ -63,7 +63,7 @@ const initVstore = async (api, contentLead) => {
 
   // batch addClassSchema calls into a single block
   debug('adding schemas to classes...')
-  const addClassSchema = classes.filter(call => {
+  const addClassSchema = classes.filter((call) => {
     return call.methodName === 'addClassSchema'
   })
 
@@ -75,7 +75,7 @@ const initVstore = async (api, contentLead) => {
   await dispatchCalls(api, contentLead, entities, true)
 }
 
-const check = async api => {
+const check = async (api) => {
   const roleAccountId = roleKeyPair(api).address
   const providerId = await api.workers.findProviderIdByRoleAccount(roleAccountId)
 
