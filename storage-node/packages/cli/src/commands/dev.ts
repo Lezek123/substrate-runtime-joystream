@@ -96,7 +96,7 @@ const check = async api => {
 // Setup Alice account on a developement chain as
 // a member, storage lead, and a storage provider using a deterministic
 // development key for the role account
-const init = async api => {
+const init = async (api) => {
   try {
     await check(api)
     return
@@ -184,3 +184,5 @@ module.exports = {
   roleKeyPair,
   developmentPort,
 }
+
+export { init, check, aliceKeyPair, roleKeyPair, developmentPort }
