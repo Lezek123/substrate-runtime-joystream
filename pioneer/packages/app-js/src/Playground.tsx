@@ -27,9 +27,11 @@ import { STORE_EXAMPLES, STORE_SELECTED, CUSTOM_LABEL } from './constants';
 
 import Output from './Output';
 import ActionButtons from './ActionButtons';
+import Transport from '@polkadot/joy-utils/transport';
 
 interface Injected {
   api: ApiPromise;
+  transport: Transport;
   console: {
     error: (...args: any[]) => void;
     log: (...args: any[]) => void;
@@ -186,8 +188,12 @@ function Playground ({ className, history, match: { params: { base64 } }, t }: P
     setIsRunning(true);
     _clearConsole();
 
+    const injectedApi = api.clone();
+    await injectedApi.isReady;
+
     injectedRef.current = {
-      api: api.clone(),
+      api: injectedApi,
+      transport: new Transport(injectedApi),
       console: {
         error: (...args: any[]): void => _hookConsole('error', args),
         log: (...args: any[]): void => _hookConsole('log', args)
@@ -204,8 +210,6 @@ function Playground ({ className, history, match: { params: { base64 } }, t }: P
         types: joy_types
       }
     };
-
-    await injectedRef.current.api.isReady;
 
     // squash into a single line so exceptions (with line numbers) maps to the same line/origin
     // as we have in the editor view (TODO: Make the console.error here actually return the full stack)

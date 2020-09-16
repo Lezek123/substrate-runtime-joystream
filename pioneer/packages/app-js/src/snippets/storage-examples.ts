@@ -132,3 +132,24 @@ const currSize = await api.query.balances.freeBalance.size(ALICE);
 
 console.log('Alice balance entry has a value hash of', currHash, 'with a size of', currSize);`
 };
+
+// Joystream-specific
+export const storageExportProposals: Snippet = {
+  value: 'storageExportProposals',
+  text: 'Export proposals data',
+  label: { color: 'blue', children: 'Storage', size: 'tiny' },
+  code: `// Use injected transport to get the data
+const allProposalsData = [];
+const allProposalsIds = await transport.proposals.proposalsIds();
+for (const proposalId of allProposalsIds) {
+  console.log(\`Fetching proposal \${proposalId.toString()} data...\`);
+  const data = {
+    proposal: await transport.proposals.proposalById(proposalId),
+    votes: await transport.proposals.votes(proposalId),
+    discussion: await transport.proposals.discussion(proposalId)
+  };
+  allProposalsData.push(data);
+}
+
+console.log(JSON.stringify(allProposalsData, null, 4));`
+};
