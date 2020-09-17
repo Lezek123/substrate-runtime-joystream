@@ -151,5 +151,7 @@ for (const proposalId of allProposalsIds) {
   allProposalsData.push(data);
 }
 
-console.log(JSON.stringify(allProposalsData, null, 4));`
+const exportData = JSON.stringify(allProposalsData, null, 4)
+const blob = new Blob([exportData], { type: 'application/json; charset=utf-8' });
+saveFileAs(blob, 'historical-proposals.json');`
 };

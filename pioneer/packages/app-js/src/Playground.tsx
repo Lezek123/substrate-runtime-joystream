@@ -27,11 +27,13 @@ import { STORE_EXAMPLES, STORE_SELECTED, CUSTOM_LABEL } from './constants';
 
 import Output from './Output';
 import ActionButtons from './ActionButtons';
-import Transport from '@polkadot/joy-utils/transport';
+import Transport from '@polkadot/joy-utils/transport/index';
+import { saveAs } from 'file-saver';
 
 interface Injected {
   api: ApiPromise;
   transport: Transport;
+  saveFileAs: typeof saveAs;
   console: {
     error: (...args: any[]) => void;
     log: (...args: any[]) => void;
@@ -194,6 +196,7 @@ function Playground ({ className, history, match: { params: { base64 } }, t }: P
     injectedRef.current = {
       api: injectedApi,
       transport: new Transport(injectedApi),
+      saveFileAs: saveAs,
       console: {
         error: (...args: any[]): void => _hookConsole('error', args),
         log: (...args: any[]): void => _hookConsole('log', args)
