@@ -1,3 +1,7 @@
+require('ts-node').register({
+  files: true,
+})
+
 module.exports = {
   networks: {
     // We currently use Ganache as development network
@@ -18,7 +22,7 @@ module.exports = {
           runs: 1,
         },
       },
-      evmVersion: 'istanbul'
+      evmVersion: 'istanbul',
     },
   },
   mocha: {

@@ -23,7 +23,8 @@
     "utils/api-scripts",
     "content-directory-schemas",
     "query-node",
-    "query-node/generated/*"
+    "query-node/generated/*",
+    "smart-contracts"
   ],
   "resolutions": {
     "@polkadot/api": "1.26.1",
@@ -41,7 +42,8 @@
   "devDependencies": {
     "eslint": "^7.6.0",
     "husky": "^4.2.5",
-    "prettier": "2.0.2"
+    "prettier": "2.0.2",
+    "solhint-plugin-prettier": "^0.0.5"
   },
   "husky": {
     "hooks": {

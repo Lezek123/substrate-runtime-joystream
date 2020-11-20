@@ -11,8 +11,8 @@ import "./bridge/MembershipBridge.sol";
 import "./bridge/ContentWorkingGroupBridge.sol";
 import "./bridge/auth.sol";
 
-import "../node_modules/@openzeppelin/contracts/utils/Pausable.sol";
-import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract ContentDirectory is RuntimeManageable, Pausable {
   // Storage contracts

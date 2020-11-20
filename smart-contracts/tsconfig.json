@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "noEmit": true,
+    "strict": true,
+    "target": "es2017",
+    "types": ["node", "mocha", "chai"],
+    "noUnusedLocals": true,
+    "baseUrl": ".",
+    "skipLibCheck": true
+  },
+  "include": ["/**/*.ts"]
+}
