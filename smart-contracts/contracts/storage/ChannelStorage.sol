@@ -95,6 +95,7 @@ contract ChannelStorage is Ownable {
     Channel storage newChannel = channelById[channelId];
     // Populate the struct
     newChannel.isExisting = true;
+    newChannel.isActive = true;
     newChannel.ownership = _ownership;
     _incCountByOwnership(_ownership);
     nextChannelId = nextChannelId.add(1);

@@ -2,3 +2,5 @@ export const RUNTIME_ADDRESS_INDEX = 0
 export const COUNCIL_ADDRESS_INDEX = 1
 export const MEMBER_1_ADDRESS_INDEX = 2
 export const MEMBER_2_ADDRESS_INDEX = 3
+export const CURATOR_1_ADDRESS_INDEX = 4
+export const LEAD_ADDRESS_INDEX = 5
