@@ -10,7 +10,8 @@
     "lint": "yarn lint:contracts && yarn lint:js",
     "format": "yarn prettier --write .",
     "checks": "tsc && yarn lint",
-    "generate:types": "yarn compile && typechain --target truffle-v5 'build/**/*.json'"
+    "generate:types": "yarn compile && typechain --target truffle-v5 'build/**/*.json'",
+    "postinstall": "yarn generate:types"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^3.0.0",
