@@ -1,12 +1,12 @@
 import { RUNTIME_ADDRESS_INDEX, COUNCIL_ADDRESS_INDEX } from './consts'
 
-const RuntimeAddressProvider = artifacts.require('RuntimeAddressProvider')
-const ContentWorkingGroupBridge = artifacts.require('ContentWorkingGroupBridge')
-const MembershipBridge = artifacts.require('MembershipBridge')
-const ChannelStorage = artifacts.require('ChannelStorage')
-const VideoStorage = artifacts.require('VideoStorage')
-const CuratorGroupStorage = artifacts.require('CuratorGroupStorage')
-const ContentDirectory = artifacts.require('ContentDirectory')
+export const RuntimeAddressProvider = artifacts.require('RuntimeAddressProvider')
+export const ContentWorkingGroupBridge = artifacts.require('ContentWorkingGroupBridge')
+export const MembershipBridge = artifacts.require('MembershipBridge')
+export const ChannelStorage = artifacts.require('ChannelStorage')
+export const VideoStorage = artifacts.require('VideoStorage')
+export const CuratorGroupStorage = artifacts.require('CuratorGroupStorage')
+export const ContentDirectory = artifacts.require('ContentDirectory')
 
 // Allows redeploying contracts on beforeEach to make tests fully independent
 // TODO: It would be best to run truffle migrations here programatically

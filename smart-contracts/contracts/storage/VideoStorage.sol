@@ -17,7 +17,7 @@ contract VideoStorage is Ownable {
 
   mapping(uint64 => Video) private videoById;
   mapping(uint64 => uint64) public videoCountByChannelId;
-  uint64 nextVideoId = 1;
+  uint64 public nextVideoId = 1;
 
   function addVideo(uint64 _channelId) public onlyOwner returns (uint64) {
     uint64 videoId = nextVideoId;

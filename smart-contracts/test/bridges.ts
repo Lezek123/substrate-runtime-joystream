@@ -6,7 +6,7 @@ import {
   CURATOR_1_ADDRESS_INDEX,
   LEAD_ADDRESS_INDEX,
 } from './utils/consts'
-import { redeployContracts } from './utils/redeploy'
+import { redeployContracts } from './utils/deployment'
 
 import {
   ContentWorkingGroupBridgeInstance,
