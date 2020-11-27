@@ -24,6 +24,18 @@ const ChannelOwnerType = {
   CuratorGroup: 2,
 } as const
 
+// Metadata used for tests
+const channelMetadata = [
+  ['title', 'Example Channel'],
+  ['description', 'This is an example channel'],
+]
+const channelUpdateMetadata = [['title', 'Updated Example Channel']]
+const videoMetadata = [
+  ['title', 'Example Video'],
+  ['description', 'This is an example video'],
+]
+const videoMetadataUpdate = [['title', 'Updated Example Video']]
+
 contract('ContentDirectory', (accounts) => {
   let membershipBridge: MembershipBridgeInstance
   let contentDirectory: ContentDirectoryInstance
@@ -54,32 +66,37 @@ contract('ContentDirectory', (accounts) => {
 
   describe('Channel creation', () => {
     it('should allow the member to create a channel', async () => {
-      const metadata = [
-        ['title', 'Awesome channel'],
-        ['description', 'This is an awesome channel'],
-      ]
       const ownership = { ownershipType: ChannelOwnerType.Member, ownerId: 1 }
-      const res = await contentDirectory.createChannel(ownership, metadata, {
+      const res = await contentDirectory.createChannel(ownership, channelMetadata, {
         from: accounts[MEMBER_1_ADDRESS_INDEX],
       })
 
       assert.equal((await channelStorage.nextChannelId()).toNumber(), 2)
       assert.equal((await channelStorage.channelCountByOwnership(ChannelOwnerType.Member, 1)).toNumber(), 1)
-      truffleAssert.eventEmitted(res, 'ChannelCreated', (e: any) => e._id.eqn(1) && _.isEqual(e._metadata, metadata))
+      truffleAssert.eventEmitted(
+        res,
+        'ChannelCreated',
+        (e: any) => e._id.eqn(1) && _.isEqual(e._metadata, channelMetadata)
+      )
 
       await channelStorage.getExistingChannel(1) // Just makes sure it doesn't fail
+    })
+
+    it('should NOT allow the member to create a channel for other member', async () => {
+      const ownership = { ownershipType: ChannelOwnerType.Member, ownerId: 2 }
+      await truffleAssert.reverts(
+        contentDirectory.createChannel(ownership, channelMetadata, {
+          from: accounts[MEMBER_1_ADDRESS_INDEX],
+        })
+      )
     })
   })
 
   describe('Member channels', () => {
     // Each of those tests will need a new channel instance
     beforeEach(async () => {
-      const metadata = [
-        ['title', 'Awesome channel'],
-        ['description', 'This is an awesome channel'],
-      ]
       const ownership = { ownershipType: ChannelOwnerType.Member, ownerId: 1 }
-      await contentDirectory.createChannel(ownership, metadata, {
+      await contentDirectory.createChannel(ownership, channelMetadata, {
         from: accounts[MEMBER_1_ADDRESS_INDEX],
       })
     })
@@ -91,13 +108,12 @@ contract('ContentDirectory', (accounts) => {
       })
 
       it('should be able to update the channel', async () => {
-        const updatedMetadata = [['title', 'Awesome updated channel']]
-        const res = await contentDirectory.updateChannelMetadata(1, updatedMetadata)
+        const res = await contentDirectory.updateChannelMetadata(1, channelUpdateMetadata)
 
         truffleAssert.eventEmitted(
           res,
           'ChannelMetadataUpdated',
-          (e: any) => e._id.eqn(1) && _.isEqual(e._metadata, updatedMetadata)
+          (e: any) => e._id.eqn(1) && _.isEqual(e._metadata, channelUpdateMetadata)
         )
       })
 
@@ -130,10 +146,6 @@ contract('ContentDirectory', (accounts) => {
       })
 
       it('should be able to publish a video under the channel', async () => {
-        const videoMetadata = [
-          ['title', 'Example video'],
-          ['description', 'This is an example video'],
-        ]
         const res = await contentDirectory.addVideo(1, videoMetadata)
         truffleAssert.eventEmitted(
           res,
@@ -170,6 +182,33 @@ contract('ContentDirectory', (accounts) => {
           await truffleAssert.reverts(contentDirectory.activateChannel(1, curatorId))
         }
       })
+
+      describe('Managing videos', () => {
+        // Each of those tests expect an existing video
+        beforeEach(async () => {
+          await contentDirectory.addVideo(1, videoMetadata)
+        })
+
+        it('should NOT be able to remove the channel if it has a video', async () => {
+          await truffleAssert.reverts(contentDirectory.removeChannel(1))
+        })
+
+        it('should be able to update video under the channel', async () => {
+          const res = await contentDirectory.updateVideoMetadata(1, videoMetadataUpdate)
+          truffleAssert.eventEmitted(
+            res,
+            'VideoMetadataUpdated',
+            (e: any) => e._id.eqn(1) && _.isEqual(e._metadata, videoMetadataUpdate)
+          )
+        })
+
+        it('should be able to remove video under the channel', async () => {
+          const res = await contentDirectory.removeVideo(1)
+          truffleAssert.eventEmitted(res, 'VideoRemoved', (e: any) => e._id.eqn(1))
+          await truffleAssert.reverts(videoStorage.getExistingVideo(1))
+          assert.equal((await videoStorage.videoCountByChannelId(1)).toNumber(), 0)
+        })
+      })
     })
 
     describe('Other member', () => {
@@ -179,15 +218,15 @@ contract('ContentDirectory', (accounts) => {
       })
 
       it('should NOT be able to update the channel as owner', async () => {
-        const updatedMetadata = [['title', 'Awesome updated channel']]
-        await truffleAssert.reverts(contentDirectory.updateChannelMetadata(1, updatedMetadata))
+        await truffleAssert.reverts(contentDirectory.updateChannelMetadata(1, channelUpdateMetadata))
       })
 
       it('should NOT be able to update the channel as curator', async () => {
         // Try with both _curatorId = 0 and existing curator id (1)
-        const updatedMetadata = [['title', 'Maliciously updated channel']]
         for (const curatorId of [0, 1]) {
-          await truffleAssert.reverts(contentDirectory.updateChannelMetadataAsCurator(1, updatedMetadata, curatorId))
+          await truffleAssert.reverts(
+            contentDirectory.updateChannelMetadataAsCurator(1, channelUpdateMetadata, curatorId)
+          )
         }
       })
 
@@ -204,11 +243,24 @@ contract('ContentDirectory', (accounts) => {
       })
 
       it('should NOT be able to publish video under the channel', async () => {
-        const videoMetadata = [
-          ['title', 'Example video'],
-          ['description', 'This is an example video'],
-        ]
         await truffleAssert.reverts(contentDirectory.addVideo(1, videoMetadata))
+      })
+
+      describe('Managing videos', () => {
+        // Each of those tests expect an existing video
+        beforeEach(async () => {
+          await contentDirectory.addVideo(1, videoMetadata, {
+            from: accounts[MEMBER_1_ADDRESS_INDEX],
+          })
+        })
+
+        it('should NOT be able to update video under the channel', async () => {
+          await truffleAssert.reverts(await contentDirectory.updateVideoMetadata(1, videoMetadataUpdate))
+        })
+
+        it('should NOT be able to remove video under the channel', async () => {
+          await truffleAssert.reverts(await contentDirectory.removeVideo(1))
+        })
       })
     })
 
@@ -237,13 +289,12 @@ contract('ContentDirectory', (accounts) => {
       })
 
       it('should be able to update the channel metadata', async () => {
-        const updatedMetadata = [['title', 'Awesome updated channel']]
-        const res = await contentDirectory.updateChannelMetadataAsCurator(1, updatedMetadata, 1)
+        const res = await contentDirectory.updateChannelMetadataAsCurator(1, channelUpdateMetadata, 1)
 
         truffleAssert.eventEmitted(
           res,
           'ChannelMetadataUpdated',
-          (e: any) => e._id.eqn(1) && _.isEqual(e._metadata, updatedMetadata)
+          (e: any) => e._id.eqn(1) && _.isEqual(e._metadata, channelUpdateMetadata)
         )
       })
 
@@ -258,6 +309,31 @@ contract('ContentDirectory', (accounts) => {
         )
 
         assert.equal((await channelStorage.getExistingChannel(1)).videoLimit.toString(), newLimit.toString())
+      })
+
+      describe('Managing videos', () => {
+        // Each of those tests expect an existing video
+        beforeEach(async () => {
+          await contentDirectory.addVideo(1, videoMetadata, {
+            from: accounts[MEMBER_1_ADDRESS_INDEX],
+          })
+        })
+
+        it('should be able to update video under the channel', async () => {
+          const res = await contentDirectory.updateVideoMetadataAsCurator(1, videoMetadataUpdate, 1)
+          truffleAssert.eventEmitted(
+            res,
+            'VideoMetadataUpdated',
+            (e: any) => e._id.eqn(1) && _.isEqual(e._metadata, videoMetadataUpdate)
+          )
+        })
+
+        it('should be able to remove video under the channel', async () => {
+          const res = await contentDirectory.removeVideoAsCurator(1, 1, 'Test')
+          truffleAssert.eventEmitted(res, 'VideoRemoved', (e: any) => e._id.eqn(1))
+          await truffleAssert.reverts(videoStorage.getExistingVideo(1))
+          assert.equal((await videoStorage.videoCountByChannelId(1)).toNumber(), 0)
+        })
       })
     })
   })
