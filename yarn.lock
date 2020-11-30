@@ -1388,10 +1388,10 @@
     ajv "^6.12.0"
     ajv-keywords "^3.4.1"
 
-"@dzlzv/hydra-cli@^0.0.17":
-  version "0.0.17"
-  resolved "https://registry.yarnpkg.com/@dzlzv/hydra-cli/-/hydra-cli-0.0.17.tgz#56ccae132f76e738724cdc5f0abcd47ff25df530"
-  integrity sha512-ixrjGn6a7UG7ecHYKWTHpcxbdi6X32NbtyCuewm4YGFdb+v0/Eg5zWhFbg1PbMUW9GllC4MiIjDF7Bh1fh9t7Q==
+"@dzlzv/hydra-cli@^0.0.23":
+  version "0.0.23"
+  resolved "https://registry.yarnpkg.com/@dzlzv/hydra-cli/-/hydra-cli-0.0.23.tgz#b483280c3b0137347f85158a89481990757e0e21"
+  integrity sha512-Ua11sQRRcGOcItvvXRHPxababZ7aSRV9BbUGpFKA3k+fr7dSbjT2v66RSix1+ktzQ1TUPUVwNYP2XZuHkq0FcQ==
   dependencies:
     "@oclif/command" "^1.5.20"
     "@oclif/config" "^1"
@@ -1411,11 +1411,12 @@
     listr "^0.14.3"
     lodash "^4.17.15"
     mustache "^4.0.1"
+    pluralize "^8.0.0"
     tslib "1.11.2"
     typeorm-model-generator "^0.4.2"
-    warthog "https://github.com/metmirr/warthog/releases/download/v2.20.0/warthog-v2.20.0.tgz"
+    warthog "https://github.com/metmirr/warthog/releases/download/v2.22.0/warthog-v2.22.0.tgz"
 
-"@dzlzv/hydra-indexer-lib@^0.0.19-legacy.1.26.1":
+"@dzlzv/hydra-indexer-lib@0.0.19-legacy.1.26.1", "@dzlzv/hydra-indexer-lib@^0.0.20-legacy.1.26.1":
   version "0.0.19-legacy.1.26.1"
   resolved "https://registry.yarnpkg.com/@dzlzv/hydra-indexer-lib/-/hydra-indexer-lib-0.0.19-legacy.1.26.1.tgz#346b564845b2014f7a4d9b3976c03e30da8dd309"
   integrity sha512-4pwaSDRIo/1MqxjfSotjv91fkIj/bfZcZx5nqjB9gRT85X28b3WqkqTFrzlGsGGbvUFWAx4WIeQKnY1yrpX89Q==
@@ -1628,53 +1629,53 @@
     unique-filename "^1.1.1"
     which "^1.3.1"
 
-"@ffmpeg-installer/darwin-x64@4.1.0":
+"@ffprobe-installer/darwin-x64@4.1.0":
   version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@ffmpeg-installer/darwin-x64/-/darwin-x64-4.1.0.tgz#48e1706c690e628148482bfb64acb67472089aaa"
-  integrity sha512-Z4EyG3cIFjdhlY8wI9aLUXuH8nVt7E9SlMVZtWvSPnm2sm37/yC2CwjUzyCQbJbySnef1tQwGG2Sx+uWhd9IAw==
+  resolved "https://registry.yarnpkg.com/@ffprobe-installer/darwin-x64/-/darwin-x64-4.1.0.tgz#025c5108faf3e456e6a407dd65b798f8dcc805dd"
+  integrity sha512-ESwvOnbGVGK0r7bUdThSZAYipQOH0X79M4SoNZ5Tg77lq/RVbEdpObNEM2oRfLINbMlQQrezA4VYzt0n/DOkcQ==
 
-"@ffmpeg-installer/ffmpeg@^1.0.20":
-  version "1.0.20"
-  resolved "https://registry.yarnpkg.com/@ffmpeg-installer/ffmpeg/-/ffmpeg-1.0.20.tgz#d3c9c2bbcd76149468fb0886c2b3fe9e4795490b"
-  integrity sha512-wbgd//6OdwbFXYgV68ZyKrIcozEQpUKlvV66XHaqO2h3sFbX0jYLzx62Q0v8UcFWN21LoxT98NU2P+K0OWsKNA==
+"@ffprobe-installer/ffprobe@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@ffprobe-installer/ffprobe/-/ffprobe-1.1.0.tgz#a2f6fbd383f90d9359dc6c0552dca9793a884b3c"
+  integrity sha512-koiZrWEC4hrzCuN+/ijHkeiyx7CnUr/cnGynQAgHMDphsDgZkXivNzZrtT6VI5Nf0SkQqC2ZPU5rx3nZ8yEqLQ==
   optionalDependencies:
-    "@ffmpeg-installer/darwin-x64" "4.1.0"
-    "@ffmpeg-installer/linux-arm" "4.1.3"
-    "@ffmpeg-installer/linux-arm64" "4.1.4"
-    "@ffmpeg-installer/linux-ia32" "4.1.0"
-    "@ffmpeg-installer/linux-x64" "4.1.0"
-    "@ffmpeg-installer/win32-ia32" "4.1.0"
-    "@ffmpeg-installer/win32-x64" "4.1.0"
+    "@ffprobe-installer/darwin-x64" "4.1.0"
+    "@ffprobe-installer/linux-arm" "4.3.2"
+    "@ffprobe-installer/linux-arm64" "4.3.2"
+    "@ffprobe-installer/linux-ia32" "4.1.0"
+    "@ffprobe-installer/linux-x64" "4.1.0"
+    "@ffprobe-installer/win32-ia32" "4.1.0"
+    "@ffprobe-installer/win32-x64" "4.1.0"
 
-"@ffmpeg-installer/linux-arm64@4.1.4":
-  version "4.1.4"
-  resolved "https://registry.yarnpkg.com/@ffmpeg-installer/linux-arm64/-/linux-arm64-4.1.4.tgz#7219f3f901bb67f7926cb060b56b6974a6cad29f"
-  integrity sha512-dljEqAOD0oIM6O6DxBW9US/FkvqvQwgJ2lGHOwHDDwu/pX8+V0YsDL1xqHbj1DMX/+nP9rxw7G7gcUvGspSoKg==
+"@ffprobe-installer/linux-arm64@4.3.2":
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/@ffprobe-installer/linux-arm64/-/linux-arm64-4.3.2.tgz#a64ed27672d55460bdea59bc63da0cf3731f19e8"
+  integrity sha512-9mCINruqx30UqB7kRvc75sj0yAPiDy21Fowow8bQDaAYAuO39MrFt/caLJrX11vCUfx2awolxKeuzTqcO9JjMQ==
 
-"@ffmpeg-installer/linux-arm@4.1.3":
-  version "4.1.3"
-  resolved "https://registry.yarnpkg.com/@ffmpeg-installer/linux-arm/-/linux-arm-4.1.3.tgz#c554f105ed5f10475ec25d7bec94926ce18db4c1"
-  integrity sha512-NDf5V6l8AfzZ8WzUGZ5mV8O/xMzRag2ETR6+TlGIsMHp81agx51cqpPItXPib/nAZYmo55Bl2L6/WOMI3A5YRg==
+"@ffprobe-installer/linux-arm@4.3.2":
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/@ffprobe-installer/linux-arm/-/linux-arm-4.3.2.tgz#09347e67539544168d9815486cd543c3e88cba29"
+  integrity sha512-nZJbpTdh29swlgjVWi2fcV5jvbDFgo2y6a7X/uBsbely/TB158Fg0AncWJm7BbC0CwasGmSdqBsLtoSwXIcrlQ==
 
-"@ffmpeg-installer/linux-ia32@4.1.0":
+"@ffprobe-installer/linux-ia32@4.1.0":
   version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@ffmpeg-installer/linux-ia32/-/linux-ia32-4.1.0.tgz#adad70b0d0d9d8d813983d6e683c5a338a75e442"
-  integrity sha512-0LWyFQnPf+Ij9GQGD034hS6A90URNu9HCtQ5cTqo5MxOEc7Rd8gLXrJvn++UmxhU0J5RyRE9KRYstdCVUjkNOQ==
+  resolved "https://registry.yarnpkg.com/@ffprobe-installer/linux-ia32/-/linux-ia32-4.1.0.tgz#50b5952927b8b1bc42c3f2edd788b995e8470d17"
+  integrity sha512-V2NeZpnly4HP1IU5IrsbbcRg8SWzC/SS0YDNSCjmhxGV2U8MUpW8c8KREE6nX56Dml8B8do5NNkTnaYCDPt3Xw==
 
-"@ffmpeg-installer/linux-x64@4.1.0":
+"@ffprobe-installer/linux-x64@4.1.0":
   version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@ffmpeg-installer/linux-x64/-/linux-x64-4.1.0.tgz#b4a5d89c4e12e6d9306dbcdc573df716ec1c4323"
-  integrity sha512-Y5BWhGLU/WpQjOArNIgXD3z5mxxdV8c41C+U15nsE5yF8tVcdCGet5zPs5Zy3Ta6bU7haGpIzryutqCGQA/W8A==
+  resolved "https://registry.yarnpkg.com/@ffprobe-installer/linux-x64/-/linux-x64-4.1.0.tgz#b67c96748457677171ca31b0fb83e4bd3c644ab5"
+  integrity sha512-Id+irHoI+Arq6tb3sHNQyzRrgUVVDgbmwpREDqQ+GDydiCw5ca7VnvRGXE/tBM2mVQ3/6m9wWHR7+xaW3gKJlA==
 
-"@ffmpeg-installer/win32-ia32@4.1.0":
+"@ffprobe-installer/win32-ia32@4.1.0":
   version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@ffmpeg-installer/win32-ia32/-/win32-ia32-4.1.0.tgz#6eac4fb691b64c02e7a116c1e2d167f3e9b40638"
-  integrity sha512-FV2D7RlaZv/lrtdhaQ4oETwoFUsUjlUiasiZLDxhEUPdNDWcH1OU9K1xTvqz+OXLdsmYelUDuBS/zkMOTtlUAw==
+  resolved "https://registry.yarnpkg.com/@ffprobe-installer/win32-ia32/-/win32-ia32-4.1.0.tgz#19cc6d1043f7e54c2764ada6af8f7f26f98bbad8"
+  integrity sha512-G1pbRfk7XDi9EioT0gSR+O4ARdppS9kSXRzhnJOojUFD6x1k8Qv27RoOXeE5DtIE7TdX6UTywj8qA1BXI5zUUA==
 
-"@ffmpeg-installer/win32-x64@4.1.0":
+"@ffprobe-installer/win32-x64@4.1.0":
   version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@ffmpeg-installer/win32-x64/-/win32-x64-4.1.0.tgz#17e8699b5798d4c60e36e2d6326a8ebe5e95a2c5"
-  integrity sha512-Drt5u2vzDnIONf4ZEkKtFlbvwj6rI3kxw1Ck9fpudmtgaZIHD4ucsWB2lCZBXRxJgXR+2IMSti+4rtM4C4rXgg==
+  resolved "https://registry.yarnpkg.com/@ffprobe-installer/win32-x64/-/win32-x64-4.1.0.tgz#ed3e8a329eeb6c0625ac439e31ad9ec43001b33c"
+  integrity sha512-gPW2FZxexzCAOhGch0JFkeSSln+wcL5d1JDlJwfSJVEAShHf9MmxiWq0NpHoCSzFvK5qwl0C58KG180eKvd3mA==
 
 "@fortawesome/fontawesome-common-types@^0.2.30":
   version "0.2.30"
@@ -3400,7 +3401,7 @@
     is-ipfs "^0.6.0"
     recursive-fs "^1.1.2"
 
-"@polkadot/api-contract@^1.26.1":
+"@polkadot/api-contract@1.26.1", "@polkadot/api-contract@^1.26.1":
   version "1.26.1"
   resolved "https://registry.yarnpkg.com/@polkadot/api-contract/-/api-contract-1.26.1.tgz#a8b52ef469ab8bbddb83191f8d451e31ffd76142"
   integrity sha512-zLGA/MHUJf12vanUEUBBRqpHVAONHWztoHS0JTIWUUS2+3GEXk6hGw+7PPtBDfDsLj0LgU/Qna1bLalC/zyl5w==
@@ -4938,7 +4939,7 @@
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.159.tgz#61089719dc6fdd9c5cb46efc827f2571d1517065"
   integrity sha512-gF7A72f7WQN33DpqOWw9geApQPh4M3PxluMtaHxWHXEGSN12/WbcEk/eNSqWNQcQhF66VSZ06vCF94CrHwXJDg==
 
-"@types/lodash@^4.14.148", "@types/lodash@^4.14.161":
+"@types/lodash@^4.14.148":
   version "4.14.164"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.164.tgz#52348bcf909ac7b4c1bcbeda5c23135176e5dfa0"
   integrity sha512-fXCEmONnrtbYUc5014avwBeMdhHHO8YJCkOBflUL9EoJBSKZ1dei+VO74fA7JkTHZ1GvZack2TyIw5U+1lT8jg==
@@ -4947,6 +4948,11 @@
   version "4.14.157"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.157.tgz#fdac1c52448861dfde1a2e1515dbc46e54926dc8"
   integrity sha512-Ft5BNFmv2pHDgxV5JDsndOWTRJ+56zte0ZpYLowp03tW+K+t8u8YMOzAnpuqPgzX6WO1XpDIUm7u04M8vdDiVQ==
+
+"@types/lodash@^4.14.161":
+  version "4.14.165"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.165.tgz#74d55d947452e2de0742bad65270433b63a8c30f"
+  integrity sha512-tjSSOTHhI5mCHTy/OOXYIhi2Wt1qcbHmuXD1Ha7q70CgI/I71afO4XtLb/cVexki1oVYchpul/TOuu3Arcdxrg==
 
 "@types/long@^4.0.0":
   version "4.0.1"
@@ -7879,20 +7885,10 @@ bluebird@^3.1.1, bluebird@^3.3.5, bluebird@^3.5.1, bluebird@^3.5.3, bluebird@^3.
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.7.2.tgz#9f229c15be272454ffa973ace0dbee79a1b0c36f"
   integrity sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==
 
-bn.js@^4.0.0, bn.js@^4.1.0, bn.js@^4.1.1, bn.js@^4.11.8, bn.js@^4.4.0:
-  version "4.11.9"
-  resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.11.9.tgz#26d556829458f9d1e81fc48952493d0ba3507828"
-  integrity sha512-E6QoYqCKZfgatHTdHzs1RRKP7ip4vvm+EyRUeE2RF0NblwVvb0p6jSVeNTOFxPn26QXN2o6SMfNxKp6kU8zQaw==
-
-bn.js@^5.1.1, bn.js@^5.1.2:
+bn.js@^4.0.0, bn.js@^4.1.0, bn.js@^4.1.1, bn.js@^4.11.8, bn.js@^4.4.0, bn.js@^5.1.1, bn.js@^5.1.2, bn.js@^5.1.3:
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-5.1.2.tgz#c9686902d3c9a27729f43ab10f9d79c2004da7b0"
   integrity sha512-40rZaf3bUNKTVYu9sIeeEGOg7g14Yvnj9kH7b50EiwX0Q7A6umbvfI5tvHaOERH0XigqKkfLkFQxzb4e6CIXnA==
-
-bn.js@^5.1.3:
-  version "5.1.3"
-  resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-5.1.3.tgz#beca005408f642ebebea80b042b4d18d2ac0ee6b"
-  integrity sha512-GkTiFpjFtUzU9CbMeJ5iazkCzGL3jrhzerzZIuqLABjbwRaFt33I9tUdSNryIptM+RxDet6OKm2WnLXzW51KsQ==
 
 body-parser@1.19.0, body-parser@^1.18.3, body-parser@^1.19.0:
   version "1.19.0"
@@ -11341,7 +11337,7 @@ dotenv@^6.2.0:
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-6.2.0.tgz#941c0410535d942c8becf28d3f357dbd9d476064"
   integrity sha512-HygQCKUBSFl8wKQZBSemMywRWcEDNidvNbjGVyZu3nbZ8qq9ubiPoGLMdRDpfSrpkkm9BXYFkpKxxFX38o/76w==
 
-dotenvi@^0.9.0:
+dotenvi@^0.9.0, dotenvi@^0.9.1:
   version "0.9.1"
   resolved "https://registry.yarnpkg.com/dotenvi/-/dotenvi-0.9.1.tgz#e280012ee9d201a0c57cb1f6e43559603b6f0fb4"
   integrity sha512-gM9HKu6P8BS+jBQRcJRdWKkbIA35Ztszr2FEqp1oKYLMfdTWDumLNi9xlIeEAFc2C4DeOwsYcNi+mMl5OWGtcw==
@@ -16146,10 +16142,10 @@ is-color-stop@^1.0.0:
     rgb-regex "^1.0.1"
     rgba-regex "^1.0.0"
 
-is-core-module@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/is-core-module/-/is-core-module-2.0.0.tgz#58531b70aed1db7c0e8d4eb1a0a2d1ddd64bd12d"
-  integrity sha512-jq1AH6C8MuteOoBPwkxHafmByhL9j5q4OaPGdbuD+ZtQJVzH+i6E3BJDQcBA09k57i2Hh2yQbEG8yObZ0jdlWw==
+is-core-module@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/is-core-module/-/is-core-module-2.1.0.tgz#a4cc031d9b1aca63eecbd18a650e13cb4eeab946"
+  integrity sha512-YcV7BgVMRFRua2FqQzKtTDMz8iCuLEyGKjr70q8Zm1yy2qKcurbFEd79PAdHV77oL3NrAaOVQIbMmiHQCHB7ZA==
   dependencies:
     has "^1.0.3"
 
@@ -22401,6 +22397,11 @@ pg-protocol@^1.3.0:
   resolved "https://registry.yarnpkg.com/pg-protocol/-/pg-protocol-1.3.0.tgz#3c8fb7ca34dbbfcc42776ce34ac5f537d6e34770"
   integrity sha512-64/bYByMrhWULUaCd+6/72c9PMWhiVFs3EVxl9Ct6a3v/U8+rKgqP2w+kKg/BIGgMJyB+Bk/eNivT32Al+Jghw==
 
+pg-protocol@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/pg-protocol/-/pg-protocol-1.4.0.tgz#43a71a92f6fe3ac559952555aa3335c8cb4908be"
+  integrity sha512-El+aXWcwG/8wuFICMQjM5ZSAm6OWiJicFdNYo+VY3QP+8vI4SvLIWVe51PppTzMhikUJR+PsyIFKqfdXPz/yxA==
+
 pg-types@1.*:
   version "1.13.0"
   resolved "https://registry.yarnpkg.com/pg-types/-/pg-types-1.13.0.tgz#75f490b8a8abf75f1386ef5ec4455ecf6b345c63"
@@ -22451,7 +22452,20 @@ pg@^7.12.1:
     pgpass "1.x"
     semver "4.3.2"
 
-pg@^8.0.3, pg@^8.3.3:
+pg@^8.0.3:
+  version "8.5.1"
+  resolved "https://registry.yarnpkg.com/pg/-/pg-8.5.1.tgz#34dcb15f6db4a29c702bf5031ef2e1e25a06a120"
+  integrity sha512-9wm3yX9lCfjvA98ybCyw2pADUivyNWT/yIP4ZcDVpMN0og70BUWYEGXPCTAQdGTAqnytfRADb7NERrY1qxhIqw==
+  dependencies:
+    buffer-writer "2.0.0"
+    packet-reader "1.0.0"
+    pg-connection-string "^2.4.0"
+    pg-pool "^3.2.2"
+    pg-protocol "^1.4.0"
+    pg-types "^2.1.0"
+    pgpass "1.x"
+
+pg@^8.3.3:
   version "8.4.2"
   resolved "https://registry.yarnpkg.com/pg/-/pg-8.4.2.tgz#2aa58166a23391e91d56a7ea57c6d99931c0642a"
   integrity sha512-E9FlUrrc7w3+sbRmL1CSw99vifACzB2TjhMM9J5w9D1LIg+6un0jKkpHS1EQf2CWhKhec2bhrBLVMmUBDbjPRQ==
@@ -25101,11 +25115,11 @@ resolve@1.1.7:
   integrity sha1-IDEU2CrSxe2ejgQRs5ModeiJ6Xs=
 
 resolve@1.x, resolve@^1.0.0:
-  version "1.18.1"
-  resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.18.1.tgz#018fcb2c5b207d2a6424aee361c5a266da8f4130"
-  integrity sha512-lDfCPaMKfOJXjy0dPayzPdF1phampNWr3qFCjAu+rw/qbQmr5jWH5xN2hwh9QKfw9E5v4hwV7A+jrCmL8yjjqA==
+  version "1.19.0"
+  resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.19.0.tgz#1af5bf630409734a067cae29318aac7fa29a267c"
+  integrity sha512-rArEXAgsBG4UgRGcynxWIWKFvh/XZCcS8UJdHhwy91zwAvCZIbcs+vAbflgBnNjYMs/i/i+/Ux6IZhML1yPvxg==
   dependencies:
-    is-core-module "^2.0.0"
+    is-core-module "^2.1.0"
     path-parse "^1.0.6"
 
 resolve@^1.1.6, resolve@^1.1.7, resolve@^1.11.0, resolve@^1.11.1, resolve@^1.17.0, resolve@^1.2.0:
@@ -28163,12 +28177,7 @@ typescript-formatter@^7.2.2:
     commandpost "^1.0.0"
     editorconfig "^0.15.0"
 
-typescript@3.5.2:
-  version "3.5.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.5.2.tgz#a09e1dc69bc9551cadf17dba10ee42cf55e5d56c"
-  integrity sha512-7KxJovlYhTX5RaRbUdkAXN1KUZ8PwWlTzQdHV6xNqvuFOs7+WBo10TQUqT19Q/Jz2hk5v9TQDIhyLhhJY4p5AA==
-
-typescript@^3.0.3, typescript@^3.7.2, typescript@^3.7.5, typescript@^3.8.3, typescript@^3.9.5, typescript@^3.9.6, typescript@^3.9.7:
+typescript@3.5.2, typescript@^3.0.3, typescript@^3.7.2, typescript@^3.7.5, typescript@^3.8.3, typescript@^3.9.5, typescript@^3.9.6, typescript@^3.9.7:
   version "3.9.7"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.7.tgz#98d600a5ebdc38f40cb277522f12dc800e9e25fa"
   integrity sha512-BLbiRkiBzAwsjut4x/dsibSTB6yWpwT5qWmC2OfuCg3GgVQCSgMs4vEctYPhsaGtd0AeuuHMkjZ2h2WG8MSzRw==
@@ -29137,9 +29146,9 @@ warning@^4.0.2, warning@^4.0.3:
   dependencies:
     loose-envify "^1.0.0"
 
-"warthog@https://github.com/metmirr/warthog/releases/download/v2.20.0/warthog-v2.20.0.tgz":
-  version "2.20.0"
-  resolved "https://github.com/metmirr/warthog/releases/download/v2.20.0/warthog-v2.20.0.tgz#c655c7da3279b958d8fd6549be30d9eb811d48c7"
+"warthog@https://github.com/metmirr/warthog/releases/download/v2.22.0/warthog-v2.22.0.tgz":
+  version "2.22.0"
+  resolved "https://github.com/metmirr/warthog/releases/download/v2.22.0/warthog-v2.22.0.tgz#33162a65e2897c79f9b5c6c214565e85685108d3"
   dependencies:
     "@types/app-root-path" "^1.2.4"
     "@types/bn.js" "^4.11.6"
