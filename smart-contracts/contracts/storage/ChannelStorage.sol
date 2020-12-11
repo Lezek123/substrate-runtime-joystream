@@ -4,14 +4,12 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "../lib/SafeMath32.sol";
-import "../lib/SafeMath64.sol";
 
 // Generic representation of ownership, assuming that each possible ownership consists of:
-// - Type (ie. Member, Group, Curator etc.), which is represented by uint8 (and can be converted to/from enum)
+// - Type (ie. Member, Group, Curator etc.), which is represented by uint256 that can be converted to/from enum
 // - Identifier (address/id/hash), which is represented by uint256
 struct ChannelOwnership {
-  uint8 ownershipType;
+  uint256 ownershipType;
   uint256 ownerId;
 }
 
@@ -19,26 +17,29 @@ struct ChannelOwnership {
 struct Channel {
   ChannelOwnership ownership;
   bool isActive;
-  uint32 videoLimit; // 0 = use default
+  uint256 videoLimit; // 0 = use default
   bool isExisting;
 }
 
 // A helper library to parse ChannelOwnership.
 // New ownership types can be added if needed without the need for migration
 // (but changing/removing existing ones would still require migration to new storage)
+
+// WARNING: All contracts that rely on this enum should be re-deployed if the enum itself is changed!
+// See: https://hackernoon.com/beware-the-solidity-enums-9v1qa31b2 .
 enum ChannelOwnerType {Address, Member, CuratorGroup}
 
 library ChannelOwnershipDecoder {
   function isAddress(ChannelOwnership memory _ownership) internal pure returns (bool) {
-    return _ownership.ownershipType == uint8(ChannelOwnerType.Address);
+    return _ownership.ownershipType == uint256(ChannelOwnerType.Address);
   }
 
   function isMember(ChannelOwnership memory _ownership) internal pure returns (bool) {
-    return _ownership.ownershipType == uint8(ChannelOwnerType.Member);
+    return _ownership.ownershipType == uint256(ChannelOwnerType.Member);
   }
 
   function isCuratorGroup(ChannelOwnership memory _ownership) internal pure returns (bool) {
-    return _ownership.ownershipType == uint8(ChannelOwnerType.CuratorGroup);
+    return _ownership.ownershipType == uint256(ChannelOwnerType.CuratorGroup);
   }
 
   function asAddress(ChannelOwnership memory _ownership) internal pure returns (address) {
@@ -46,51 +47,51 @@ library ChannelOwnershipDecoder {
     return address(uint160(_ownership.ownerId));
   }
 
-  function asMember(ChannelOwnership memory _ownership) internal pure returns (uint64) {
+  function asMember(ChannelOwnership memory _ownership) internal pure returns (uint256) {
     require(isMember(_ownership), "asMember called on non-member ChannelOwnership");
-    return uint64(_ownership.ownerId);
+    return _ownership.ownerId;
   }
 
-  function asCuratorGroup(ChannelOwnership memory _ownership) internal pure returns (uint16) {
+  function asCuratorGroup(ChannelOwnership memory _ownership) internal pure returns (uint256) {
     require(isCuratorGroup(_ownership), "asCuratorGroup called on non-group ChannelOwnership");
-    return uint16(_ownership.ownerId);
+    return _ownership.ownerId;
   }
 
   function isValid(ChannelOwnership memory _ownership) internal pure returns (bool) {
     if (isAddress(_ownership)) {
-      return uint256(uint160(asAddress(_ownership))) == _ownership.ownerId;
+      // Check if not empty and doesn't exceed uint160
+      return _ownership.ownerId != 0 && uint256(uint160(asAddress(_ownership))) == _ownership.ownerId;
     }
-    if (isMember(_ownership)) {
-      return uint256(asMember(_ownership)) == _ownership.ownerId;
+    if (isMember(_ownership) || isCuratorGroup(_ownership)) {
+      // Just check if id is not 0
+      // (actual member/group existance checks must be performed inside logic contract)
+      return _ownership.ownerId != 0;
     }
-    if (isCuratorGroup(_ownership)) {
-      return uint256(asCuratorGroup(_ownership)) == _ownership.ownerId;
-    }
+    // If no variant matches - ownertship is invalid
     return false;
   }
 }
 
 contract ChannelStorage is Ownable {
-  mapping(uint64 => Channel) private channelById;
-  // ownershipType => ownerId => channelCount double-map
-  mapping(uint8 => mapping(uint256 => uint32)) public channelCountByOwnership;
-  uint64 public nextChannelId = 1;
+  using SafeMath for uint256;
 
-  using SafeMath32 for uint32;
-  using SafeMath64 for uint64;
+  mapping(uint256 => Channel) private channelById;
+  // ownershipType => ownerId => channelCount double-map
+  mapping(uint256 => mapping(uint256 => uint256)) public channelCountByOwnership;
+  uint256 public nextChannelId = 1;
 
   function _incCountByOwnership(ChannelOwnership memory _ownership) internal {
-    uint32 currentCount = channelCountByOwnership[_ownership.ownershipType][_ownership.ownerId];
+    uint256 currentCount = channelCountByOwnership[_ownership.ownershipType][_ownership.ownerId];
     channelCountByOwnership[_ownership.ownershipType][_ownership.ownerId] = currentCount.add(1);
   }
 
   function _decCountByOwnership(ChannelOwnership memory _ownership) internal {
-    uint32 currentCount = channelCountByOwnership[_ownership.ownershipType][_ownership.ownerId];
+    uint256 currentCount = channelCountByOwnership[_ownership.ownershipType][_ownership.ownerId];
     channelCountByOwnership[_ownership.ownershipType][_ownership.ownerId] = currentCount.sub(1);
   }
 
-  function addChannel(ChannelOwnership memory _ownership) public onlyOwner returns (uint64) {
-    uint64 channelId = nextChannelId;
+  function addChannel(ChannelOwnership memory _ownership) public onlyOwner returns (uint256) {
+    uint256 channelId = nextChannelId;
     // Get storage ref
     Channel storage newChannel = channelById[channelId];
     // Populate the struct
@@ -103,30 +104,30 @@ contract ChannelStorage is Ownable {
   }
 
   // Get channel + perform existance check
-  function getExistingChannel(uint64 _channelId) public view returns (Channel memory) {
+  function getExistingChannel(uint256 _channelId) public view returns (Channel memory) {
     Channel memory channel = channelById[_channelId];
     require(channel.isExisting, "Trying to access unexisting channel");
     return channel;
   }
 
-  function updateOwnership(uint64 _channelId, ChannelOwnership memory _ownership) public onlyOwner {
+  function updateOwnership(uint256 _channelId, ChannelOwnership memory _ownership) public onlyOwner {
     Channel storage channel = channelById[_channelId];
     _decCountByOwnership(channel.ownership);
     channel.ownership = _ownership;
     _incCountByOwnership(_ownership);
   }
 
-  function updateStatus(uint64 _channelId, bool _isActive) public onlyOwner {
+  function updateStatus(uint256 _channelId, bool _isActive) public onlyOwner {
     Channel storage channel = channelById[_channelId];
     channel.isActive = _isActive;
   }
 
-  function setChannelVideoLimit(uint64 _channelId, uint32 _videoLimit) public onlyOwner {
+  function setChannelVideoLimit(uint256 _channelId, uint256 _videoLimit) public onlyOwner {
     Channel storage channel = channelById[_channelId];
     channel.videoLimit = _videoLimit;
   }
 
-  function removeChannel(uint64 _channelId) public onlyOwner {
+  function removeChannel(uint256 _channelId) public onlyOwner {
     _decCountByOwnership(channelById[_channelId].ownership);
     delete channelById[_channelId];
   }

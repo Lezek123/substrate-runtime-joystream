@@ -5,7 +5,7 @@ import "./auth.sol";
 
 contract ContentWorkingGroupBridge is RuntimeManageable {
   // A map of curatorId => evmAddress(roleKey)
-  mapping(uint64 => address) private addressByCuratorId;
+  mapping(uint256 => address) private addressByCuratorId;
 
   // evmAddress(roleKey) of current lead
   address public currentLeadAddress;
@@ -15,7 +15,7 @@ contract ContentWorkingGroupBridge is RuntimeManageable {
 
   constructor(RuntimeAddressProvider _provider) public RuntimeManageable(_provider) {}
 
-  function setCuratorAddress(uint64 _curatorId, address _address) public onlyRuntime {
+  function setCuratorAddress(uint256 _curatorId, address _address) public onlyRuntime {
     addressByCuratorId[_curatorId] = _address;
   }
 
@@ -27,11 +27,11 @@ contract ContentWorkingGroupBridge is RuntimeManageable {
     isLeadActive = _status;
   }
 
-  function isCurator(address _address, uint64 _curatorId) public view returns (bool) {
+  function isCurator(address _address, uint256 _curatorId) public view returns (bool) {
     return (curatorExists(_curatorId) && addressByCuratorId[_curatorId] == _address);
   }
 
-  function curatorExists(uint64 _curatorId) public view returns (bool) {
+  function curatorExists(uint256 _curatorId) public view returns (bool) {
     return addressByCuratorId[_curatorId] != address(0);
   }
 

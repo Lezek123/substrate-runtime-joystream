@@ -25,16 +25,20 @@ const ChannelOwnerType = {
 } as const
 
 // Metadata used for tests
-const channelMetadata = [
-  ['title', 'Example Channel'],
-  ['description', 'This is an example channel'],
-]
-const channelUpdateMetadata = [['title', 'Updated Example Channel']]
-const videoMetadata = [
-  ['title', 'Example Video'],
-  ['description', 'This is an example video'],
-]
-const videoMetadataUpdate = [['title', 'Updated Example Video']]
+const channelMetadata = JSON.stringify({
+  title: 'Test Channel',
+  description: 'Test Channel Description',
+})
+const channelUpdateMetadata = JSON.stringify({
+  title: 'Updated test channel',
+})
+const videoMetadata = JSON.stringify({
+  title: 'Test Video',
+  description: 'TestVideoDescription',
+})
+const videoMetadataUpdate = JSON.stringify({
+  title: 'Updated test channel',
+})
 
 contract('ContentDirectory', (accounts) => {
   let membershipBridge: MembershipBridgeInstance
@@ -255,11 +259,11 @@ contract('ContentDirectory', (accounts) => {
         })
 
         it('should NOT be able to update video under the channel', async () => {
-          await truffleAssert.reverts(await contentDirectory.updateVideoMetadata(1, videoMetadataUpdate))
+          await truffleAssert.reverts(contentDirectory.updateVideoMetadata(1, videoMetadataUpdate))
         })
 
         it('should NOT be able to remove video under the channel', async () => {
-          await truffleAssert.reverts(await contentDirectory.removeVideo(1))
+          await truffleAssert.reverts(contentDirectory.removeVideo(1))
         })
       })
     })
@@ -329,8 +333,9 @@ contract('ContentDirectory', (accounts) => {
         })
 
         it('should be able to remove video under the channel', async () => {
-          const res = await contentDirectory.removeVideoAsCurator(1, 1, 'Test')
-          truffleAssert.eventEmitted(res, 'VideoRemoved', (e: any) => e._id.eqn(1))
+          const reason = 'Test'
+          const res = await contentDirectory.removeVideoAsCurator(1, 1, reason)
+          truffleAssert.eventEmitted(res, 'VideoRemovedByCurator', (e: any) => e._id.eqn(1) && e._reason === reason)
           await truffleAssert.reverts(videoStorage.getExistingVideo(1))
           assert.equal((await videoStorage.videoCountByChannelId(1)).toNumber(), 0)
         })
