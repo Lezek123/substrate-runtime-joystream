@@ -6,7 +6,7 @@ import {
   CURATOR_1_ADDRESS_INDEX,
   LEAD_ADDRESS_INDEX,
 } from './utils/consts'
-import { redeployContracts } from './utils/deployment'
+import { redeployContracts, getCurrentInstances } from './utils/deployment'
 
 import {
   ContentWorkingGroupBridgeInstance,
@@ -20,7 +20,8 @@ contract('Bridges', (accounts) => {
   let contentWorkingGroupBridge: ContentWorkingGroupBridgeInstance
 
   beforeEach(async () => {
-    ;({ runtimeAddressProvider, membershipBridge, contentWorkingGroupBridge } = await redeployContracts(accounts))
+    await redeployContracts(accounts)
+    ;({ runtimeAddressProvider, membershipBridge, contentWorkingGroupBridge } = await getCurrentInstances())
   })
 
   it('should be initialized with test provider', async () => {

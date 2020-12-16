@@ -1,71 +1,27 @@
 import truffleAssert from 'truffle-assertions'
 import _ from 'lodash'
 import {
-  RUNTIME_ADDRESS_INDEX,
   MEMBER_1_ADDRESS_INDEX,
   MEMBER_2_ADDRESS_INDEX,
   CURATOR_1_ADDRESS_INDEX,
-} from './utils/consts'
-import { redeployContracts, ContentDirectory } from './utils/deployment'
-import {
-  ChannelStorageInstance,
-  ContentDirectoryInstance,
-  ContentWorkingGroupBridgeInstance,
-  MembershipBridgeInstance,
-  VideoStorageInstance,
-} from '../types/truffle-contracts'
+  ChannelOwnerType,
+  channelMetadata,
+  channelMetadataUpdate,
+  videoMetadata,
+  videoMetadataUpdate,
+} from '../utils/consts'
+import { ContentDirectory, getCurrentInstances } from '../utils/deployment'
+import { ChannelStorageInstance, ContentDirectoryInstance, VideoStorageInstance } from 'types/truffle-contracts'
 
 // TODO: Import events types (but need to deal with BN inside struct type incompatibility)
 
-// Mimic the Solidity enum:
-const ChannelOwnerType = {
-  Address: 0,
-  Member: 1,
-  CuratorGroup: 2,
-} as const
-
-// Metadata used for tests
-const channelMetadata = JSON.stringify({
-  title: 'Test Channel',
-  description: 'Test Channel Description',
-})
-const channelUpdateMetadata = JSON.stringify({
-  title: 'Updated test channel',
-})
-const videoMetadata = JSON.stringify({
-  title: 'Test Video',
-  description: 'TestVideoDescription',
-})
-const videoMetadataUpdate = JSON.stringify({
-  title: 'Updated test channel',
-})
-
-contract('ContentDirectory', (accounts) => {
-  let membershipBridge: MembershipBridgeInstance
+const memberChannelsTests = (accounts: string[]): void => {
   let contentDirectory: ContentDirectoryInstance
   let channelStorage: ChannelStorageInstance
-  let contentWorkingGroupBridge: ContentWorkingGroupBridgeInstance
   let videoStorage: VideoStorageInstance
 
   beforeEach(async () => {
-    ;({
-      membershipBridge,
-      contentDirectory,
-      channelStorage,
-      contentWorkingGroupBridge,
-      videoStorage,
-    } = await redeployContracts(accounts))
-    // Membership bridge - initialize the members
-    await membershipBridge.setMemberAddress(1, accounts[MEMBER_1_ADDRESS_INDEX], {
-      from: accounts[RUNTIME_ADDRESS_INDEX],
-    })
-    await membershipBridge.setMemberAddress(2, accounts[MEMBER_2_ADDRESS_INDEX], {
-      from: accounts[RUNTIME_ADDRESS_INDEX],
-    })
-    // ContentWorkingGroup bridge - initialize curator
-    await contentWorkingGroupBridge.setCuratorAddress(1, accounts[CURATOR_1_ADDRESS_INDEX], {
-      from: accounts[RUNTIME_ADDRESS_INDEX],
-    })
+    ;({ contentDirectory, channelStorage, videoStorage } = await getCurrentInstances())
   })
 
   describe('Channel creation', () => {
@@ -96,7 +52,7 @@ contract('ContentDirectory', (accounts) => {
     })
   })
 
-  describe('Member channels', () => {
+  describe('Channel management', () => {
     // Each of those tests will need a new channel instance
     beforeEach(async () => {
       const ownership = { ownershipType: ChannelOwnerType.Member, ownerId: 1 }
@@ -112,12 +68,12 @@ contract('ContentDirectory', (accounts) => {
       })
 
       it('should be able to update the channel', async () => {
-        const res = await contentDirectory.updateChannelMetadata(1, channelUpdateMetadata)
+        const res = await contentDirectory.updateChannelMetadata(1, channelMetadataUpdate)
 
         truffleAssert.eventEmitted(
           res,
           'ChannelMetadataUpdated',
-          (e: any) => e._id.eqn(1) && _.isEqual(e._metadata, channelUpdateMetadata)
+          (e: any) => e._id.eqn(1) && _.isEqual(e._metadata, channelMetadataUpdate)
         )
       })
 
@@ -143,6 +99,8 @@ contract('ContentDirectory', (accounts) => {
           newOwnership.ownerId.toString()
         )
       })
+
+      it('should NOT be able to update ownership to curator group')
 
       it('should be able to remove the channel', async () => {
         await contentDirectory.removeChannel(1)
@@ -176,15 +134,24 @@ contract('ContentDirectory', (accounts) => {
         }
       })
 
-      it('should NOT be able to reactivate the channel once deactivated', async () => {
-        // Deactivate the channel as curator first
-        await contentDirectory.deactivateChannel(1, 'Test', 1, {
-          from: accounts[CURATOR_1_ADDRESS_INDEX],
+      describe('Deactivated channel', () => {
+        // Each of those tests expect a channel to be deactivated
+        beforeEach(async () => {
+          await contentDirectory.deactivateChannel(1, 'Test', 1, {
+            from: accounts[CURATOR_1_ADDRESS_INDEX],
+          })
         })
-        // Try with both _curatorId = 0 and existing curator id (1)
-        for (const curatorId of [0, 1]) {
-          await truffleAssert.reverts(contentDirectory.activateChannel(1, curatorId))
-        }
+
+        it('should NOT be able to reactivate the channel once deactivated', async () => {
+          // Try with both _curatorId = 0 and existing curator id (1)
+          for (const curatorId of [0, 1]) {
+            await truffleAssert.reverts(contentDirectory.activateChannel(1, curatorId))
+          }
+        })
+
+        it('should NOT be able to publish a video', async () => {
+          await truffleAssert.reverts(contentDirectory.addVideo(1, videoMetadata))
+        })
       })
 
       describe('Managing videos', () => {
@@ -222,14 +189,14 @@ contract('ContentDirectory', (accounts) => {
       })
 
       it('should NOT be able to update the channel as owner', async () => {
-        await truffleAssert.reverts(contentDirectory.updateChannelMetadata(1, channelUpdateMetadata))
+        await truffleAssert.reverts(contentDirectory.updateChannelMetadata(1, channelMetadataUpdate))
       })
 
       it('should NOT be able to update the channel as curator', async () => {
         // Try with both _curatorId = 0 and existing curator id (1)
         for (const curatorId of [0, 1]) {
           await truffleAssert.reverts(
-            contentDirectory.updateChannelMetadataAsCurator(1, channelUpdateMetadata, curatorId)
+            contentDirectory.updateChannelMetadataAsCurator(1, channelMetadataUpdate, curatorId)
           )
         }
       })
@@ -293,12 +260,12 @@ contract('ContentDirectory', (accounts) => {
       })
 
       it('should be able to update the channel metadata', async () => {
-        const res = await contentDirectory.updateChannelMetadataAsCurator(1, channelUpdateMetadata, 1)
+        const res = await contentDirectory.updateChannelMetadataAsCurator(1, channelMetadataUpdate, 1)
 
         truffleAssert.eventEmitted(
           res,
           'ChannelMetadataUpdated',
-          (e: any) => e._id.eqn(1) && _.isEqual(e._metadata, channelUpdateMetadata)
+          (e: any) => e._id.eqn(1) && _.isEqual(e._metadata, channelMetadataUpdate)
         )
       })
 
@@ -342,4 +309,6 @@ contract('ContentDirectory', (accounts) => {
       })
     })
   })
-})
+}
+
+export default memberChannelsTests
