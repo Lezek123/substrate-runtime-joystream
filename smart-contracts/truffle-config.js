@@ -9,17 +9,16 @@ module.exports = {
       host: '127.0.0.1',
       port: 8545,
       network_id: 5777,
-      gas: 10000000,
+      gas: 6721975,
     },
   },
   compilers: {
     solc: {
       version: '^0.6.0',
       settings: {
-        // Optimalized for deployment (temporarly)
         optimizer: {
           enabled: true,
-          runs: 1,
+          runs: 1000,
         },
       },
       evmVersion: 'istanbul',

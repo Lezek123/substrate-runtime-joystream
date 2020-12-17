@@ -6,6 +6,7 @@ pragma experimental ABIEncoderV2;
 import "./storage/ChannelStorage.sol";
 import "./storage/CuratorGroupStorage.sol";
 import "./storage/VideoStorage.sol";
+import "./storage/MetadataEntityStorage.sol";
 
 import "./bridge/MembershipBridge.sol";
 import "./bridge/ContentWorkingGroupBridge.sol";
@@ -19,6 +20,7 @@ contract ContentDirectory is RuntimeManageable, Pausable {
   ChannelStorage public channelStorage;
   VideoStorage public videoStorage;
   CuratorGroupStorage public curatorGroupStorage;
+  MetadataEntityStorage public metadataEntityStorage;
   // "Bridge" contracts
   MembershipBridge public membershipBridge;
   ContentWorkingGroupBridge public contentWorkingGroupBridge;
@@ -30,13 +32,18 @@ contract ContentDirectory is RuntimeManageable, Pausable {
   uint256 public videosPerChannelMaxLimit = 1000;
 
   // Enum + constant related to group permissions
-  enum ContentDirectoryOperation {UpdateChannelMetadata, AddVideo, UpdateVideoMetadata, RemoveVideo}
+  enum ContentDirectoryOperation { UpdateChannelMetadata, AddVideo, UpdateVideoMetadata, RemoveVideo }
   uint256 constant GROUP_PERMISSIONS_FLAGS_LENGTH = 4;
+
+  // Currently allowed metadata entity types
+  enum MetadataEntityType { Language, Category, License }
 
   // Reason validation consts
   uint256 constant DEACTIVATE_CHANNEL_REASON_MIN_LENGTH = 2;
   uint256 constant DEACTIVATE_VIDEO_REASON_MIN_LENGTH = 2;
   uint256 constant REMOVE_VIDEO_REASON_MIN_LENGTH = 2;
+  uint256 constant CHANNEL_HANDLE_MIN_LENGTH = 2;
+  uint256 constant CHANNEL_HANDLE_MAX_LENGTH = 64;
 
   // Limits change events
   event ChannelInstancesLimitUpdated(uint256 _newLimit);
@@ -70,6 +77,11 @@ contract ContentDirectory is RuntimeManageable, Pausable {
   event VideoRemovedByCurator(uint256 _id, string _reason);
   event VideoDeactivated(uint256 _id, string _reason);
   event VideoReactivated(uint256 _id);
+
+  // Metadata-entity related events
+  event MetadataEntityCreated(MetadataEntityType _type, uint256 _id, string _metadata);
+  event MetadataEntityUpdated(MetadataEntityType _type, uint256 _id, string _metadata);
+  event MetadataEntityRemoved(MetadataEntityType _type, uint256 _id);
 
   // Common modifiers/helpers
   function _isActiveLead(address _address) internal view returns (bool) {
@@ -121,20 +133,21 @@ contract ContentDirectory is RuntimeManageable, Pausable {
   constructor(
     RuntimeAddressProvider _provider,
     MembershipBridge _membershipBridge,
-    ContentWorkingGroupBridge _contentWorkingGroupBridge
+    ContentWorkingGroupBridge _contentWorkingGroupBridge,
+    ChannelStorage _channelStorage,
+    VideoStorage _videoStorage,
+    CuratorGroupStorage _curatorGroupStorage,
+    MetadataEntityStorage _metadataEntityStorage
   )
     public
-    // TODO: The upgraded logic contract would take those as args:
-    // ChannelStorage _channelStorage,
-    // VideoStorage _videoStorage,
-    // CuratorGroupStorage _curatorGroupStorage
     RuntimeManageable(_provider)
   {
     membershipBridge = _membershipBridge;
     contentWorkingGroupBridge = _contentWorkingGroupBridge;
-    channelStorage = new ChannelStorage();
-    videoStorage = new VideoStorage();
-    curatorGroupStorage = new CuratorGroupStorage();
+    channelStorage = _channelStorage;
+    videoStorage = _videoStorage;
+    curatorGroupStorage = _curatorGroupStorage;
+    metadataEntityStorage = _metadataEntityStorage;
   }
 
   // Faciliates migration to new logic contract
@@ -191,6 +204,24 @@ contract ContentDirectory is RuntimeManageable, Pausable {
     }
   }
 
+  function _validateChannelHandle(string memory _handle) internal pure {
+    uint256 handleLength = bytes(_handle).length;
+    require(handleLength >= CHANNEL_HANDLE_MIN_LENGTH, "Channel handle is too short");
+    require(handleLength <= CHANNEL_HANDLE_MAX_LENGTH, "Channel handle is too long");
+    for (uint256 i = 0; i < handleLength; ++i) {
+      uint8 charCode = uint8(bytes(_handle)[i]);
+      require(
+        // a-z
+        (charCode >= 97 && charCode <= 122) ||
+        // 0-9
+        (charCode >= 48 && charCode <= 57) ||
+        // _
+        charCode == 95,
+        "Handle contains invalid characters (only a-z0-9_ are allowed)"
+      );
+    }
+  }
+
   function _hasOwnerAccess(address _address, ChannelOwnership memory _ownership) internal view returns (bool) {
     if (_ownership.isAddress()) {
       return _address == _ownership.asAddress();
@@ -229,11 +260,16 @@ contract ContentDirectory is RuntimeManageable, Pausable {
   }
 
   // Channel operations:
-  function createChannel(ChannelOwnership memory _ownership, string memory _metadata) public whenNotPaused {
+  function createChannel(
+    ChannelOwnership memory _ownership,
+    string memory _handle,
+    string memory _metadata
+  ) public whenNotPaused {
     _validateOwnership(_ownership);
-    require(channelStorage.nextChannelId() <= channelInstancesLimit, "Channel instances limit reached");
+    _validateChannelHandle(_handle);
     require(_hasOwnerAccess(msg.sender, _ownership), "Access denied under provided ownership");
-    uint256 channelId = channelStorage.addChannel(_ownership);
+    require(channelStorage.channelIdByHandle(_handle) == 0, "Channel handle should be unique");
+    uint256 channelId = channelStorage.addChannel(_ownership, _handle);
     emit ChannelCreated(channelId, _ownership, _metadata);
   }
 
@@ -263,16 +299,20 @@ contract ContentDirectory is RuntimeManageable, Pausable {
     emit ChannelMetadataUpdated(_channelId, _metadata);
   }
 
-  function updateChannelOwnership(uint256 _channelId, ChannelOwnership memory _ownership) public whenNotPaused {
+  function transferChannelOwnership(uint256 _channelId, ChannelOwnership memory _newOwnership) public whenNotPaused {
     Channel memory channel = channelStorage.getExistingChannel(_channelId);
     require(_hasOwnerAccess(msg.sender, channel.ownership), "Owner access required");
-    _validateOwnership(_ownership);
-    require(
-      !_ownership.isCuratorGroup() || _isActiveLead(msg.sender),
-      "Only lead can update ownership to CuratorGroup"
-    );
-    channelStorage.updateOwnership(_channelId, _ownership);
-    emit ChannelOwnershipUpdated(_channelId, _ownership);
+    _validateOwnership(_newOwnership);
+    channelStorage.setChannelPendingTransfer(_channelId, _newOwnership);
+  }
+
+  function acceptChannelOwnershipTransfer(uint256 _channelId) public whenNotPaused {
+    Channel memory channel = channelStorage.getExistingChannel(_channelId);
+    require(channel.ownershipTransfer.isPending, "No pending channel transfer available");
+    require(_hasOwnerAccess(msg.sender, channel.ownershipTransfer.newOwnership), "Owner access under new ownership required");
+    channelStorage.unsetPendingChannelTransfer(_channelId);
+    channelStorage.updateOwnership(_channelId, channel.ownershipTransfer.newOwnership);
+    emit ChannelOwnershipUpdated(_channelId, channel.ownershipTransfer.newOwnership);
   }
 
   function updateChannelVideoLimit(
@@ -481,5 +521,20 @@ contract ContentDirectory is RuntimeManageable, Pausable {
     require(!video.isActive, "Video already active");
     videoStorage.updateStatus(_videoId, true);
     emit VideoReactivated(_videoId);
+  }
+
+  function createMetadataEntity(MetadataEntityType _type, string memory _metadata) public onlyLead whenNotPaused {
+    uint256 entityId = metadataEntityStorage.addMetadataEntity(uint256(_type));
+    emit MetadataEntityCreated(_type, entityId, _metadata);
+  }
+
+  function updateMetadataEntity(MetadataEntityType _type, uint256 _id, string memory _metadata) public onlyLead whenNotPaused {
+    require(metadataEntityStorage.metadataEntityExistsByTypeById(uint256(_type), _id), "Entity not found");
+    emit MetadataEntityUpdated(_type, _id, _metadata);
+  }
+
+  function removeMetadataEntity(MetadataEntityType _type, uint256 _id) public onlyLead whenNotPaused {
+    require(metadataEntityStorage.metadataEntityExistsByTypeById(uint256(_type), _id), "Entity not found");
+    emit MetadataEntityRemoved(_type, _id);
   }
 }

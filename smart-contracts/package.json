@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "scripts": {
     "test": "truffle test --network development",
-    "start": "ganache-cli --hardfork istanbul --network-id 5777 --gasLimit 10000000",
+    "start": "ganache-cli --hardfork istanbul --network-id 5777",
     "compile": "truffle compile",
     "lint:contracts": "solhint 'contracts/**/*.sol'",
     "lint:js": "eslint --ext .js,.ts --ignore-path .gitignore .",

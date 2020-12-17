@@ -15,10 +15,18 @@ struct ChannelOwnership {
 
 // Any change to this struct requires ChannelStorage migration
 struct Channel {
-  ChannelOwnership ownership;
-  bool isActive;
-  uint256 videoLimit; // 0 = use default
   bool isExisting;
+  bool isActive;
+  ChannelOwnership ownership;
+  uint256 videoLimit; // 0 = use default
+  string handle;
+  OwnershipTransfer ownershipTransfer;
+}
+
+// Any change to this struct requires ChannelStorage migration
+struct OwnershipTransfer {
+  bool isPending;
+  ChannelOwnership newOwnership;
 }
 
 // A helper library to parse ChannelOwnership.
@@ -78,6 +86,7 @@ contract ChannelStorage is Ownable {
   mapping(uint256 => Channel) private channelById;
   // ownershipType => ownerId => channelCount double-map
   mapping(uint256 => mapping(uint256 => uint256)) public channelCountByOwnership;
+  mapping(string => uint256) public channelIdByHandle;
   uint256 public nextChannelId = 1;
 
   function _incCountByOwnership(ChannelOwnership memory _ownership) internal {
@@ -90,7 +99,7 @@ contract ChannelStorage is Ownable {
     channelCountByOwnership[_ownership.ownershipType][_ownership.ownerId] = currentCount.sub(1);
   }
 
-  function addChannel(ChannelOwnership memory _ownership) public onlyOwner returns (uint256) {
+  function addChannel(ChannelOwnership memory _ownership, string memory _handle) public onlyOwner returns (uint256) {
     uint256 channelId = nextChannelId;
     // Get storage ref
     Channel storage newChannel = channelById[channelId];
@@ -98,6 +107,9 @@ contract ChannelStorage is Ownable {
     newChannel.isExisting = true;
     newChannel.isActive = true;
     newChannel.ownership = _ownership;
+    newChannel.handle = _handle;
+    // Update counters / maps
+    channelIdByHandle[_handle] = channelId;
     _incCountByOwnership(_ownership);
     nextChannelId = nextChannelId.add(1);
     return channelId;
@@ -130,5 +142,15 @@ contract ChannelStorage is Ownable {
   function removeChannel(uint256 _channelId) public onlyOwner {
     _decCountByOwnership(channelById[_channelId].ownership);
     delete channelById[_channelId];
+  }
+
+  function setChannelPendingTransfer(uint256 _channelId, ChannelOwnership memory _newOwnership) public onlyOwner {
+    Channel storage channel = channelById[_channelId];
+    channel.ownershipTransfer = OwnershipTransfer(true, _newOwnership);
+  }
+
+  function unsetPendingChannelTransfer(uint256 _channelId) public onlyOwner {
+    Channel storage channel = channelById[_channelId];
+    delete channel.ownershipTransfer;
   }
 }

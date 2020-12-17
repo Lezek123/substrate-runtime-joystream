@@ -5,6 +5,8 @@ export const MEMBER_2_ADDRESS_INDEX = 3
 export const CURATOR_1_ADDRESS_INDEX = 4
 export const LEAD_ADDRESS_INDEX = 5
 
+export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+
 // Mimic the Solidity enum:
 export const ChannelOwnerType = {
   Address: 0,

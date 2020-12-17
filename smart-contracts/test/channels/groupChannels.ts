@@ -10,7 +10,7 @@ import {
   videoMetadataUpdate,
   LEAD_ADDRESS_INDEX,
 } from '../utils/consts'
-import { ContentDirectory, getCurrentInstances } from '../utils/deployment'
+import { ContentDirectory, getCurrentInstances, setDefaultContractCaller } from '../utils/contracts'
 import { ContentDirectoryInstance } from '../../types/truffle-contracts'
 
 // TODO: Import events types (but need to deal with BN inside struct type incompatibility)
@@ -33,7 +33,7 @@ const groupChannelsTests = (accounts: string[]): void => {
   describe('Channel creation', () => {
     it('should allow the lead to create a channel', async () => {
       const ownership = { ownershipType: ChannelOwnerType.CuratorGroup, ownerId: 1 }
-      await contentDirectory.createChannel(ownership, channelMetadata, {
+      await contentDirectory.createChannel(ownership, 'test', channelMetadata, {
         from: accounts[LEAD_ADDRESS_INDEX],
       })
     })
@@ -41,7 +41,7 @@ const groupChannelsTests = (accounts: string[]): void => {
     it('should NOT allow the member to create a channel', async () => {
       const ownership = { ownershipType: ChannelOwnerType.CuratorGroup, ownerId: 1 }
       await truffleAssert.reverts(
-        contentDirectory.createChannel(ownership, channelMetadata, {
+        contentDirectory.createChannel(ownership, 'test', channelMetadata, {
           from: accounts[MEMBER_1_ADDRESS_INDEX],
         })
       )
@@ -50,7 +50,7 @@ const groupChannelsTests = (accounts: string[]): void => {
     it('should NOT allow the curator to create a channel', async () => {
       const ownership = { ownershipType: ChannelOwnerType.CuratorGroup, ownerId: 1 }
       await truffleAssert.reverts(
-        contentDirectory.createChannel(ownership, channelMetadata, {
+        contentDirectory.createChannel(ownership, 'test', channelMetadata, {
           from: accounts[CURATOR_1_ADDRESS_INDEX],
         })
       )
@@ -61,7 +61,7 @@ const groupChannelsTests = (accounts: string[]): void => {
     // Each of those tests will need a new channel instance
     beforeEach(async () => {
       const ownership = { ownershipType: ChannelOwnerType.CuratorGroup, ownerId: 1 }
-      await contentDirectory.createChannel(ownership, channelMetadata, {
+      await contentDirectory.createChannel(ownership, 'test', channelMetadata, {
         from: accounts[LEAD_ADDRESS_INDEX],
       })
     })
@@ -69,7 +69,7 @@ const groupChannelsTests = (accounts: string[]): void => {
     describe('The lead', () => {
       before(() => {
         // Set default address for all tests under this "describe"
-        ;(ContentDirectory as any).defaults({ from: accounts[LEAD_ADDRESS_INDEX] })
+        setDefaultContractCaller(accounts[LEAD_ADDRESS_INDEX])
       })
 
       it('should be able to update the channel', async () => {
@@ -121,7 +121,7 @@ const groupChannelsTests = (accounts: string[]): void => {
     describe('Curator group member with full access', () => {
       before(() => {
         // Set default address for all tests under this "describe"
-        ;(ContentDirectory as any).defaults({ from: accounts[CURATOR_1_ADDRESS_INDEX] })
+        setDefaultContractCaller(accounts[CURATOR_1_ADDRESS_INDEX])
       })
 
       beforeEach(async () => {
@@ -191,7 +191,7 @@ const groupChannelsTests = (accounts: string[]): void => {
     describe('Curator group member with no access', () => {
       before(() => {
         // Set default address for all tests under this "describe"
-        ;(ContentDirectory as any).defaults({ from: accounts[CURATOR_1_ADDRESS_INDEX] })
+        setDefaultContractCaller(accounts[CURATOR_1_ADDRESS_INDEX])
       })
 
       beforeEach(async () => {
