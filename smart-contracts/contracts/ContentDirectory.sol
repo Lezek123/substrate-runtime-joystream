@@ -535,6 +535,7 @@ contract ContentDirectory is RuntimeManageable, Pausable {
 
   function removeMetadataEntity(MetadataEntityType _type, uint256 _id) public onlyLead whenNotPaused {
     require(metadataEntityStorage.metadataEntityExistsByTypeById(uint256(_type), _id), "Entity not found");
+    metadataEntityStorage.removeMetadataEntity(uint256(_type), _id);
     emit MetadataEntityRemoved(_type, _id);
   }
 }

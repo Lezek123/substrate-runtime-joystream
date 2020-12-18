@@ -9,8 +9,8 @@ import {
   channelMetadataUpdate,
   videoMetadata,
   videoMetadataUpdate,
-} from '../utils/consts'
-import { ContentDirectory, getCurrentInstances, setDefaultContractCaller } from '../utils/contracts'
+} from '../../utils/consts'
+import { getCurrentInstances, setDefaultContractCaller } from '../../utils/contracts'
 import { ChannelStorageInstance, ContentDirectoryInstance, VideoStorageInstance } from 'types/truffle-contracts'
 
 // TODO: Import events types (but need to deal with BN inside struct type incompatibility)

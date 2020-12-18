@@ -9,9 +9,9 @@ import {
   videoMetadata,
   videoMetadataUpdate,
   LEAD_ADDRESS_INDEX,
-} from '../utils/consts'
-import { getCurrentInstances, setDefaultContractCaller } from '../utils/contracts'
-import { ContentDirectoryInstance } from '../../types/truffle-contracts'
+} from '../../utils/consts'
+import { getCurrentInstances, setDefaultContractCaller } from '../../utils/contracts'
+import { ContentDirectoryInstance } from '../../../types/truffle-contracts'
 
 // TODO: Import events types (but need to deal with BN inside struct type incompatibility)
 // TODO: Create custom assertions like "assertChannelRemoved" based on memberChannels tests and use them here?

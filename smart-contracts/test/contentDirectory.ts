@@ -6,8 +6,9 @@ import {
   LEAD_ADDRESS_INDEX,
 } from './utils/consts'
 import { redeployContracts, getCurrentInstances } from './utils/contracts'
-import memberChannelsTests from './channels/memberChannels'
-import groupChannelsTests from './channels/groupChannels'
+import memberChannelsTests from './contentDirectory/channels/memberChannels'
+import groupChannelsTests from './contentDirectory/channels/groupChannels'
+import metadataEntitiesTests from './contentDirectory/metadataEntities'
 
 contract('ContentDirectory', (accounts) => {
   beforeEach(async () => {
@@ -33,5 +34,9 @@ contract('ContentDirectory', (accounts) => {
 
   describe('Group channels', () => {
     groupChannelsTests(accounts)
+  })
+
+  describe('Metadata entities', () => {
+    metadataEntitiesTests(accounts)
   })
 })
