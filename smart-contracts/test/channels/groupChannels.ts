@@ -10,7 +10,7 @@ import {
   videoMetadataUpdate,
   LEAD_ADDRESS_INDEX,
 } from '../utils/consts'
-import { ContentDirectory, getCurrentInstances, setDefaultContractCaller } from '../utils/contracts'
+import { getCurrentInstances, setDefaultContractCaller } from '../utils/contracts'
 import { ContentDirectoryInstance } from '../../types/truffle-contracts'
 
 // TODO: Import events types (but need to deal with BN inside struct type incompatibility)
@@ -76,8 +76,22 @@ const groupChannelsTests = (accounts: string[]): void => {
         await contentDirectory.updateChannelMetadata(1, channelMetadataUpdate)
       })
 
-      // TODO: Group channel should always have a group as owner?
-      it('should be able to transfer channel ownership')
+      it('should be able to transfer channel ownership to a different group', async () => {
+        // Create a new group
+        await contentDirectory.createCuratorGroup([false, false, false, false], {
+          from: accounts[LEAD_ADDRESS_INDEX],
+        })
+
+        const newOwnership = {
+          ownershipType: ChannelOwnerType.CuratorGroup,
+          ownerId: 2,
+        }
+
+        // Transfer the ownership
+        await contentDirectory.transferChannelOwnership(1, newOwnership)
+        // Confirm the transfer
+        await contentDirectory.acceptChannelOwnershipTransfer(1)
+      })
 
       it('should be able to remove the channel', async () => {
         await contentDirectory.removeChannel(1)
@@ -135,7 +149,29 @@ const groupChannelsTests = (accounts: string[]): void => {
         await contentDirectory.updateChannelMetadataAsCurator(1, channelMetadataUpdate, 1)
       })
 
-      it('should NOT be able to transfer channel ownership')
+      it('should NOT be able to initialize channel ownership transfer', async () => {
+        const newOwnership = {
+          ownershipType: ChannelOwnerType.CuratorGroup,
+          ownerId: 1,
+        }
+        await truffleAssert.reverts(contentDirectory.transferChannelOwnership(1, newOwnership))
+      })
+
+      it('should NOT be able to accept pending ownership transfer', async () => {
+        // Create a valid pending transfer as lead
+        await contentDirectory.createCuratorGroup([false, false, false, false], {
+          from: accounts[LEAD_ADDRESS_INDEX],
+        })
+        const newOwnership = {
+          ownershipType: ChannelOwnerType.CuratorGroup,
+          ownerId: 2,
+        }
+        await contentDirectory.transferChannelOwnership(1, newOwnership, {
+          from: accounts[LEAD_ADDRESS_INDEX],
+        })
+        // Try to accept
+        await truffleAssert.reverts(contentDirectory.acceptChannelOwnershipTransfer(1))
+      })
 
       it('should NOT be able to remove the channel', async () => {
         await truffleAssert.reverts(contentDirectory.removeChannel(1))
@@ -205,7 +241,29 @@ const groupChannelsTests = (accounts: string[]): void => {
         await truffleAssert.reverts(contentDirectory.updateChannelMetadataAsCurator(1, channelMetadataUpdate, 1))
       })
 
-      it('should NOT be able to transfer channel ownership')
+      it('should NOT be able to transfer channel ownership', async () => {
+        const newOwnership = {
+          ownershipType: ChannelOwnerType.CuratorGroup,
+          ownerId: 1,
+        }
+        await truffleAssert.reverts(contentDirectory.transferChannelOwnership(1, newOwnership))
+      })
+
+      it('should NOT be able to accept pending ownership transfer', async () => {
+        // Create a valid pending transfer as lead first
+        await contentDirectory.createCuratorGroup([false, false, false, false], {
+          from: accounts[LEAD_ADDRESS_INDEX],
+        })
+        const newOwnership = {
+          ownershipType: ChannelOwnerType.CuratorGroup,
+          ownerId: 2,
+        }
+        await contentDirectory.transferChannelOwnership(1, newOwnership, {
+          from: accounts[LEAD_ADDRESS_INDEX],
+        })
+        // Try to accept
+        await truffleAssert.reverts(contentDirectory.acceptChannelOwnershipTransfer(1))
+      })
 
       it('should NOT be able to remove the channel', async () => {
         await truffleAssert.reverts(contentDirectory.removeChannel(1))

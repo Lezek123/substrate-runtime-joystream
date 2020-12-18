@@ -77,8 +77,7 @@ const memberChannelsTests = (accounts: string[]): void => {
         )
       })
 
-      it('should be able to transfer channel ownership', async () => {
-        // FIXME: Prevent transferring ownership to ANY member?
+      it('should be able to initialize channel ownership transfer', async () => {
         const newOwnership = {
           ownershipType: ChannelOwnerType.Member,
           ownerId: 2,
@@ -86,21 +85,10 @@ const memberChannelsTests = (accounts: string[]): void => {
 
         const res = await contentDirectory.transferChannelOwnership(1, newOwnership)
 
-        // truffleAssert.eventEmitted(res, 'ChannelOwnershipUpdated', (e: any) => {
-        //   return (
-        //     e._id.eqn(1) &&
-        //     e._ownership.ownershipType === newOwnership.ownershipType.toString() &&
-        //     e._ownership.ownerId === newOwnership.ownerId.toString()
-        //   )
-        // })
-
-        // assert.equal(
-        //   (await channelStorage.getExistingChannel(1)).ownership.ownerId.toString(),
-        //   newOwnership.ownerId.toString()
-        // )
+        // Assert that the ownership didn't change yet
+        truffleAssert.eventNotEmitted(res, 'ChannelOwnershipUpdated')
+        assert.equal((await channelStorage.getExistingChannel(1)).ownership.ownerId.toString(), '1')
       })
-
-      it('should NOT be able to update ownership to curator group')
 
       it('should be able to remove the channel', async () => {
         await contentDirectory.removeChannel(1)
@@ -201,12 +189,52 @@ const memberChannelsTests = (accounts: string[]): void => {
         }
       })
 
-      it('should NOT be able to transfer channel ownership', async () => {
+      it('should NOT be able to initialize channel ownership transfer', async () => {
+        const newOwnership = {
+          ownershipType: ChannelOwnerType.Member,
+          ownerId: 2,
+        }
+        await truffleAssert.reverts(contentDirectory.transferChannelOwnership(1, newOwnership))
+      })
+
+      it('should be able to accept ownership transfer if is a reciever', async () => {
+        // Create a pending transfer as owner first
+        const newOwnership = {
+          ownershipType: ChannelOwnerType.Member,
+          ownerId: 2,
+        }
+        await contentDirectory.transferChannelOwnership(1, newOwnership, {
+          from: accounts[MEMBER_1_ADDRESS_INDEX],
+        })
+
+        // Accept transfer as member2
+        const acceptRes = await contentDirectory.acceptChannelOwnershipTransfer(1)
+
+        // Assert that event was emitted and the ownership has changed
+        truffleAssert.eventEmitted(acceptRes, 'ChannelOwnershipUpdated', (e: any) => {
+          return (
+            e._id.eqn(1) &&
+            e._ownership.ownershipType === newOwnership.ownershipType.toString() &&
+            e._ownership.ownerId === newOwnership.ownerId.toString()
+          )
+        })
+        assert.equal(
+          (await channelStorage.getExistingChannel(1)).ownership.ownerId.toString(),
+          newOwnership.ownerId.toString()
+        )
+      })
+
+      it('should NOT be able to accept ownership transfer if is NOT a reciever', async () => {
+        // Create a pending transfer as owner first
         const newOwnership = {
           ownershipType: ChannelOwnerType.Member,
           ownerId: 1,
         }
-        await truffleAssert.reverts(contentDirectory.transferChannelOwnership(1, newOwnership))
+        await contentDirectory.transferChannelOwnership(1, newOwnership, {
+          from: accounts[MEMBER_1_ADDRESS_INDEX],
+        })
+
+        await truffleAssert.reverts(contentDirectory.acceptChannelOwnershipTransfer(1))
       })
 
       it('should NOT be able to remove the channel', async () => {
@@ -280,6 +308,16 @@ const memberChannelsTests = (accounts: string[]): void => {
         )
 
         assert.equal((await channelStorage.getExistingChannel(1)).videoLimit.toString(), newLimit.toString())
+      })
+
+      // This may be a subject to change, but currently it's prohibited
+      // due to possibility of introducing reward accounts etc.
+      it('should NOT be able to initialize channel ownership transfer', async () => {
+        const newOwnership = {
+          ownershipType: ChannelOwnerType.Member,
+          ownerId: 2,
+        }
+        await truffleAssert.reverts(contentDirectory.transferChannelOwnership(1, newOwnership))
       })
 
       describe('Managing videos', () => {
