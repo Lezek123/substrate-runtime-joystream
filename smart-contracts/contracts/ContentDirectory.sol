@@ -306,6 +306,17 @@ contract ContentDirectory is RuntimeManageable, Pausable {
     channelStorage.setChannelPendingTransfer(_channelId, _newOwnership);
   }
 
+  function transferChannelOwnershipAsCurator(
+    uint256 _channelId,
+    ChannelOwnership memory _newOwnership,
+    uint256 _curatorId
+  ) public whenNotPaused {
+    Channel memory channel = channelStorage.getExistingChannel(_channelId);
+    require(_canCurate(msg.sender, _curatorId, channel.ownership), "Access denied");
+    _validateOwnership(_newOwnership);
+    channelStorage.setChannelPendingTransfer(_channelId, _newOwnership);
+  }
+
   function acceptChannelOwnershipTransfer(uint256 _channelId) public whenNotPaused {
     Channel memory channel = channelStorage.getExistingChannel(_channelId);
     require(channel.ownershipTransfer.isPending, "No pending channel transfer available");

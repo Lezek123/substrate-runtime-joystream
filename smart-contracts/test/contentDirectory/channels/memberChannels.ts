@@ -197,6 +197,17 @@ const memberChannelsTests = (accounts: string[]): void => {
         await truffleAssert.reverts(contentDirectory.transferChannelOwnership(1, newOwnership))
       })
 
+      it('should NOT be able to initialize channel ownership transfer as curator', async () => {
+        const newOwnership = {
+          ownershipType: ChannelOwnerType.Member,
+          ownerId: 2,
+        }
+        // Try with both curatorId 0 and 1
+        for (const curatorId of [0, 1]) {
+          await truffleAssert.reverts(contentDirectory.transferChannelOwnershipAsCurator(1, newOwnership, curatorId))
+        }
+      })
+
       it('should be able to accept ownership transfer if is a reciever', async () => {
         // Create a pending transfer as owner first
         const newOwnership = {
@@ -310,14 +321,12 @@ const memberChannelsTests = (accounts: string[]): void => {
         assert.equal((await channelStorage.getExistingChannel(1)).videoLimit.toString(), newLimit.toString())
       })
 
-      // This may be a subject to change, but currently it's prohibited
-      // due to possibility of introducing reward accounts etc.
-      it('should NOT be able to initialize channel ownership transfer', async () => {
+      it('should be able to initialize channel ownership transfer', async () => {
         const newOwnership = {
           ownershipType: ChannelOwnerType.Member,
           ownerId: 2,
         }
-        await truffleAssert.reverts(contentDirectory.transferChannelOwnership(1, newOwnership))
+        await contentDirectory.transferChannelOwnershipAsCurator(1, newOwnership, 1)
       })
 
       describe('Managing videos', () => {
