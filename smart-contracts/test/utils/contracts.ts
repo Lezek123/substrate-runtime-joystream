@@ -146,8 +146,8 @@ export const getCurrentInstances = async (): Promise<Contracts> => {
   return currentInstances as Contracts
 }
 
-export const setDefaultContractCaller = (address: string) => {
-  ;(process.env.UPGRADE ? NewContentDirectory : (ContentDirectory as any)).defaults({
-    from: address,
-  })
+export const setDefaultCaller = (address: string) => {
+  ;(ContentDirectory as any).defaults({ from: address })
+  ;(MembershipBridge as any).defaults({ from: address })
+  ;(ContentWorkingGroupBridge as any).defaults({ from: address })
 }

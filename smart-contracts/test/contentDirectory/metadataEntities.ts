@@ -1,7 +1,7 @@
 import truffleAssert from 'truffle-assertions'
 import _ from 'lodash'
 import { ContentDirectoryInstance, MetadataEntityStorageInstance } from '../../types/truffle-contracts'
-import { setDefaultContractCaller, getCurrentInstances } from '../utils/contracts'
+import { setDefaultCaller, getCurrentInstances } from '../utils/contracts'
 import {
   MetadataEntityType,
   CURATOR_1_ADDRESS_INDEX,
@@ -22,7 +22,7 @@ const metadataEntitiesTests = (accounts: string[]): void => {
 
   describe('The lead', () => {
     before(() => {
-      setDefaultContractCaller(accounts[LEAD_ADDRESS_INDEX])
+      setDefaultCaller(accounts[LEAD_ADDRESS_INDEX])
     })
 
     describe('should be able to create entities of recognized types', async () => {
@@ -84,7 +84,7 @@ const metadataEntitiesTests = (accounts: string[]): void => {
 
   describe('The curator', () => {
     before(() => {
-      setDefaultContractCaller(accounts[CURATOR_1_ADDRESS_INDEX])
+      setDefaultCaller(accounts[CURATOR_1_ADDRESS_INDEX])
     })
 
     it('should NOT be able to create an entity', async () => {

@@ -10,7 +10,7 @@ import {
   videoMetadataUpdate,
   LEAD_ADDRESS_INDEX,
 } from '../../utils/consts'
-import { getCurrentInstances, setDefaultContractCaller } from '../../utils/contracts'
+import { getCurrentInstances, setDefaultCaller } from '../../utils/contracts'
 import { ContentDirectoryInstance } from '../../../types/truffle-contracts'
 
 // TODO: Import events types (but need to deal with BN inside struct type incompatibility)
@@ -69,7 +69,7 @@ const groupChannelsTests = (accounts: string[]): void => {
     describe('The lead', () => {
       before(() => {
         // Set default address for all tests under this "describe"
-        setDefaultContractCaller(accounts[LEAD_ADDRESS_INDEX])
+        setDefaultCaller(accounts[LEAD_ADDRESS_INDEX])
       })
 
       it('should be able to update the channel', async () => {
@@ -135,7 +135,7 @@ const groupChannelsTests = (accounts: string[]): void => {
     describe('Curator group member with full access', () => {
       before(() => {
         // Set default address for all tests under this "describe"
-        setDefaultContractCaller(accounts[CURATOR_1_ADDRESS_INDEX])
+        setDefaultCaller(accounts[CURATOR_1_ADDRESS_INDEX])
       })
 
       beforeEach(async () => {
@@ -227,7 +227,7 @@ const groupChannelsTests = (accounts: string[]): void => {
     describe('Curator group member with no access', () => {
       before(() => {
         // Set default address for all tests under this "describe"
-        setDefaultContractCaller(accounts[CURATOR_1_ADDRESS_INDEX])
+        setDefaultCaller(accounts[CURATOR_1_ADDRESS_INDEX])
       })
 
       beforeEach(async () => {

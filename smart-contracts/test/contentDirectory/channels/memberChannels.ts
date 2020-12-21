@@ -10,7 +10,7 @@ import {
   videoMetadata,
   videoMetadataUpdate,
 } from '../../utils/consts'
-import { getCurrentInstances, setDefaultContractCaller } from '../../utils/contracts'
+import { getCurrentInstances, setDefaultCaller } from '../../utils/contracts'
 import { ChannelStorageInstance, ContentDirectoryInstance, VideoStorageInstance } from 'types/truffle-contracts'
 
 // TODO: Import events types (but need to deal with BN inside struct type incompatibility)
@@ -64,7 +64,7 @@ const memberChannelsTests = (accounts: string[]): void => {
     describe('Channel owner', () => {
       before(() => {
         // Set default address for all tests under this "describe"
-        setDefaultContractCaller(accounts[MEMBER_1_ADDRESS_INDEX])
+        setDefaultCaller(accounts[MEMBER_1_ADDRESS_INDEX])
       })
 
       it('should be able to update the channel', async () => {
@@ -173,7 +173,7 @@ const memberChannelsTests = (accounts: string[]): void => {
     describe('Other member', () => {
       before(() => {
         // Set default address for all tests under this "describe"
-        setDefaultContractCaller(accounts[MEMBER_2_ADDRESS_INDEX])
+        setDefaultCaller(accounts[MEMBER_2_ADDRESS_INDEX])
       })
 
       it('should NOT be able to update the channel as owner', async () => {
@@ -278,7 +278,7 @@ const memberChannelsTests = (accounts: string[]): void => {
     describe('Curator', () => {
       before(() => {
         // Set default address for all tests under this "describe"
-        setDefaultContractCaller(accounts[CURATOR_1_ADDRESS_INDEX])
+        setDefaultCaller(accounts[CURATOR_1_ADDRESS_INDEX])
       })
 
       it('should be able to deactivate and reactivate the channel', async () => {
