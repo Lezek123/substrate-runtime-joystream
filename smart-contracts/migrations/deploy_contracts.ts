@@ -6,7 +6,6 @@ module.exports = (artifacts: Truffle.Artifacts) => {
   const ChannelStorage = artifacts.require('ChannelStorage')
   const VideoStorage = artifacts.require('VideoStorage')
   const CuratorGroupStorage = artifacts.require('CuratorGroupStorage')
-  const MetadataEntityStorage = artifacts.require('MetadataEntityStorage')
 
   const migration: Truffle.Migration = async (deployer, network, accounts) => {
     let runtimeAddress = '0x2222222222222222222222222222222222222222'
@@ -22,7 +21,6 @@ module.exports = (artifacts: Truffle.Artifacts) => {
     await deployer.deploy(ChannelStorage)
     await deployer.deploy(VideoStorage)
     await deployer.deploy(CuratorGroupStorage)
-    await deployer.deploy(MetadataEntityStorage)
 
     await deployer.deploy(
       ContentDirectory,
@@ -31,15 +29,13 @@ module.exports = (artifacts: Truffle.Artifacts) => {
       ContentWorkingGroupBridge.address,
       ChannelStorage.address,
       VideoStorage.address,
-      CuratorGroupStorage.address,
-      MetadataEntityStorage.address
+      CuratorGroupStorage.address
     )
 
     // Transfer storage contracts ownership to logic contract
     await (await ChannelStorage.deployed()).transferOwnership(ContentDirectory.address)
     await (await VideoStorage.deployed()).transferOwnership(ContentDirectory.address)
     await (await CuratorGroupStorage.deployed()).transferOwnership(ContentDirectory.address)
-    await (await MetadataEntityStorage.deployed()).transferOwnership(ContentDirectory.address)
   }
 
   return migration

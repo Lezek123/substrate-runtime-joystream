@@ -8,8 +8,8 @@ import {
 import { redeployContracts, getCurrentInstances } from './utils/contracts'
 import memberChannelsTests from './contentDirectory/channels/memberChannels'
 import groupChannelsTests from './contentDirectory/channels/groupChannels'
-import metadataEntitiesTests from './contentDirectory/metadataEntities'
 import curatorGroupsTests from './contentDirectory/curatorGroups'
+import operationsTests from './contentDirectory/operations'
 
 contract('ContentDirectory', (accounts) => {
   beforeEach(async () => {
@@ -43,7 +43,7 @@ contract('ContentDirectory', (accounts) => {
     groupChannelsTests(accounts)
   })
 
-  describe('Metadata entities', () => {
-    metadataEntitiesTests(accounts)
+  describe('Custom operations', () => {
+    operationsTests(accounts)
   })
 })

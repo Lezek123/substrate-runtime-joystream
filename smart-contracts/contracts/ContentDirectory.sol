@@ -6,7 +6,6 @@ pragma experimental ABIEncoderV2;
 import "./storage/ChannelStorage.sol";
 import "./storage/CuratorGroupStorage.sol";
 import "./storage/VideoStorage.sol";
-import "./storage/MetadataEntityStorage.sol";
 
 import "./bridge/MembershipBridge.sol";
 import "./bridge/ContentWorkingGroupBridge.sol";
@@ -20,7 +19,6 @@ contract ContentDirectory is RuntimeManageable, Pausable {
   ChannelStorage public channelStorage;
   VideoStorage public videoStorage;
   CuratorGroupStorage public curatorGroupStorage;
-  MetadataEntityStorage public metadataEntityStorage;
   // "Bridge" contracts
   MembershipBridge public membershipBridge;
   ContentWorkingGroupBridge public contentWorkingGroupBridge;
@@ -34,9 +32,6 @@ contract ContentDirectory is RuntimeManageable, Pausable {
   // Enum + constant related to group permissions
   enum ContentDirectoryOperation { UpdateChannelMetadata, AddVideo, UpdateVideoMetadata, RemoveVideo }
   uint256 constant GROUP_PERMISSIONS_FLAGS_LENGTH = 4;
-
-  // Currently allowed metadata entity types
-  enum MetadataEntityType { Language, Category, License }
 
   // Reason validation consts
   uint256 constant DEACTIVATE_CHANNEL_REASON_MIN_LENGTH = 2;
@@ -78,10 +73,9 @@ contract ContentDirectory is RuntimeManageable, Pausable {
   event VideoDeactivated(uint256 _id, string _reason);
   event VideoReactivated(uint256 _id);
 
-  // Metadata-entity related events
-  event MetadataEntityCreated(MetadataEntityType _type, uint256 _id, string _metadata);
-  event MetadataEntityUpdated(MetadataEntityType _type, uint256 _id, string _metadata);
-  event MetadataEntityRemoved(MetadataEntityType _type, uint256 _id);
+  // Custom operations
+  event CustomLeadOperationRequestSent(string _requestData);
+  event CustomCuratorOperationRequestSent(string _requestData, uint256 _curatorId);
 
   // Common modifiers/helpers
   function _isActiveLead(address _address) internal view returns (bool) {
@@ -136,8 +130,7 @@ contract ContentDirectory is RuntimeManageable, Pausable {
     ContentWorkingGroupBridge _contentWorkingGroupBridge,
     ChannelStorage _channelStorage,
     VideoStorage _videoStorage,
-    CuratorGroupStorage _curatorGroupStorage,
-    MetadataEntityStorage _metadataEntityStorage
+    CuratorGroupStorage _curatorGroupStorage
   )
     public
     RuntimeManageable(_provider)
@@ -147,7 +140,6 @@ contract ContentDirectory is RuntimeManageable, Pausable {
     channelStorage = _channelStorage;
     videoStorage = _videoStorage;
     curatorGroupStorage = _curatorGroupStorage;
-    metadataEntityStorage = _metadataEntityStorage;
   }
 
   // Faciliates migration to new logic contract
@@ -534,19 +526,12 @@ contract ContentDirectory is RuntimeManageable, Pausable {
     emit VideoReactivated(_videoId);
   }
 
-  function createMetadataEntity(MetadataEntityType _type, string memory _metadata) public onlyLead whenNotPaused {
-    uint256 entityId = metadataEntityStorage.addMetadataEntity(uint256(_type));
-    emit MetadataEntityCreated(_type, entityId, _metadata);
+  function sendCustomLeadOperationRequest(string memory _requestData) public onlyLead whenNotPaused {
+    emit CustomLeadOperationRequestSent(_requestData);
   }
 
-  function updateMetadataEntity(MetadataEntityType _type, uint256 _id, string memory _metadata) public onlyLead whenNotPaused {
-    require(metadataEntityStorage.metadataEntityExistsByTypeById(uint256(_type), _id), "Entity not found");
-    emit MetadataEntityUpdated(_type, _id, _metadata);
-  }
-
-  function removeMetadataEntity(MetadataEntityType _type, uint256 _id) public onlyLead whenNotPaused {
-    require(metadataEntityStorage.metadataEntityExistsByTypeById(uint256(_type), _id), "Entity not found");
-    metadataEntityStorage.removeMetadataEntity(uint256(_type), _id);
-    emit MetadataEntityRemoved(_type, _id);
+  function sendCustomCuratorOperationRequest(string memory _requestData, uint256 _curatorId) public whenNotPaused {
+    require(_isCurator(msg.sender, _curatorId), "Access denied");
+    emit CustomCuratorOperationRequestSent(_requestData, _curatorId);
   }
 }

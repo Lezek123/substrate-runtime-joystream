@@ -26,7 +26,6 @@ contract NewContentDirectory is ContentDirectory {
     ChannelStorage _channelStorage,
     VideoStorage _videoStorage,
     CuratorGroupStorage _curatorGroupStorage,
-    MetadataEntityStorage _metadataEntityStorage,
     ChannelRewardAccountsStorage _channelRewardAccountsStorage
   )
     public
@@ -36,8 +35,7 @@ contract NewContentDirectory is ContentDirectory {
       _contentWorkingGroupBridge,
       _channelStorage,
       _videoStorage,
-      _curatorGroupStorage,
-      _metadataEntityStorage
+      _curatorGroupStorage
     )
   { }
 

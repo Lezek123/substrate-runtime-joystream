@@ -8,7 +8,6 @@ import {
   ChannelStorageInstance,
   VideoStorageInstance,
   CuratorGroupStorageInstance,
-  MetadataEntityStorageInstance,
 } from '../../types/truffle-contracts'
 
 import _ from 'lodash'
@@ -22,7 +21,6 @@ export const MembershipBridge = artifacts.require('MembershipBridge')
 export const ChannelStorage = artifacts.require('ChannelStorage')
 export const VideoStorage = artifacts.require('VideoStorage')
 export const CuratorGroupStorage = artifacts.require('CuratorGroupStorage')
-export const MetadataEntityStorage = artifacts.require('MetadataEntityStorage')
 export const ContentDirectory = artifacts.require('ContentDirectory')
 
 // Example upgrade
@@ -37,7 +35,6 @@ export type Contracts = {
   channelStorage: ChannelStorageInstance
   videoStorage: VideoStorageInstance
   curatorGroupStorage: CuratorGroupStorageInstance
-  metadataEntityStorage: MetadataEntityStorageInstance
 }
 
 let contractsInitialized = false
@@ -57,22 +54,19 @@ export const redeployContracts = async (accounts: string[]): Promise<void> => {
   const channelStorage = await ChannelStorage.new()
   const videoStorage = await VideoStorage.new()
   const curatorGroupStorage = await CuratorGroupStorage.new()
-  const metadataEntityStorage = await MetadataEntityStorage.new()
   const contentDirectory = await ContentDirectory.new(
     runtimeAddressProvider.address,
     membershipBridge.address,
     contentWorkingGroupBridge.address,
     channelStorage.address,
     videoStorage.address,
-    curatorGroupStorage.address,
-    metadataEntityStorage.address
+    curatorGroupStorage.address
   )
 
   // Transfer storage ownerships
   await channelStorage.transferOwnership(contentDirectory.address)
   await videoStorage.transferOwnership(contentDirectory.address)
   await curatorGroupStorage.transferOwnership(contentDirectory.address)
-  await metadataEntityStorage.transferOwnership(contentDirectory.address)
 
   currentInstances.runtimeAddressProvider = runtimeAddressProvider
   currentInstances.membershipBridge = membershipBridge
@@ -81,7 +75,6 @@ export const redeployContracts = async (accounts: string[]): Promise<void> => {
   currentInstances.channelStorage = channelStorage
   currentInstances.videoStorage = videoStorage
   currentInstances.curatorGroupStorage = curatorGroupStorage
-  currentInstances.metadataEntityStorage = metadataEntityStorage
 
   contractsInitialized = true
 
@@ -104,7 +97,6 @@ export const upgradeContracts = async (accounts: string[]): Promise<void> => {
     channelStorage,
     videoStorage,
     curatorGroupStorage,
-    metadataEntityStorage,
     contentDirectory,
   } = currentInstances as Contracts
 
@@ -118,7 +110,6 @@ export const upgradeContracts = async (accounts: string[]): Promise<void> => {
     channelStorage.address,
     videoStorage.address,
     curatorGroupStorage.address,
-    metadataEntityStorage.address,
     channelRewardAccountsStorage.address
   )
 
