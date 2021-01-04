@@ -1,0 +1,141 @@
+syntax = "proto3";
+
+message TimeRange {
+  uint32 from = 1;
+  uint32 to = 2;
+}
+
+// Featured videos
+
+message SetFeaturedVideos {
+  repeated uint32 videoIds = 1;
+}
+
+message AddFeaturedVideos {
+  repeated uint32 videoIds = 1;
+}
+
+message RemoveFeaturedVideos {
+  repeated uint32 videoIds = 1;
+}
+
+message SetFeaturedHeaderVideo {
+  required uint32 id = 1;
+  repeated TimeRange previewRanges = 2;
+}
+
+// Languages
+
+message AddLanguage {
+  required string code = 1;
+  required string name = 2;
+}
+
+message UpdateLanguageName {
+  required uint16 id = 1;
+  required string name = 2;
+}
+
+message UpdateLanguageCode {
+  required uint16 id = 1;
+  required string code = 2;
+}
+
+message RemoveLanguage {
+  required uint16 id = 1;
+}
+
+// Categories
+
+message AddCategory {
+  required string name = 1;
+  required string description = 2;
+}
+
+message UpdateCategoryName {
+  required uint16 id = 1;
+  required string name = 2;
+}
+
+message UpdateCategoryDescription {
+  required uint16 id = 1;
+  required string description = 2;
+}
+
+message RemoveCategory {
+  required uint16 id = 1;
+}
+
+// Licenses
+
+message AddLicense {
+  required string code = 1;
+  required string name = 2;
+  string description = 3;
+  string url = 4;
+}
+
+message UpdateLicenseCode {
+  required uint16 id = 1;
+  required string code = 2;
+}
+
+message UpdateLicenseName {
+  required uint16 id = 1;
+  required string name = 2;
+}
+
+message UpdateLicenseDescription {
+  required uint16 id = 1;
+  string description = 2;
+}
+
+message UpdateLicenseUrl {
+  required uint16 id = 1;
+  string url = 2;
+}
+
+message RemoveLicense {
+  required uint16 id = 1;
+}
+
+// Encodings
+
+message AddEncoding {
+  required string name = 1;
+}
+
+message UpdateEncodingName {
+  required uint16 id = 1;
+  required string name = 2;
+}
+
+message RemoveEncoding {
+  required uint16 id = 1;
+}
+
+message LeadOperationRequest {
+  oneof operation {
+    SetFeaturedVideos setFeaturedVideos = 1;
+    AddFeaturedVideos addFeaturedVideos = 2;
+    RemoveFeaturedVideos removeFeaturedVideos = 3;
+    SetFeaturedHeaderVideo setFeaturedHeaderVideo = 4;
+    AddLanguage addLanguage = 5;
+    UpdateLanguageName updateLanguageName = 6;
+    UpdateLanguageCode updateLanguageCode = 7;
+    RemoveLanguage removeLanguage = 8;
+    AddCategory addCategory = 9;
+    UpdateCategoryName updateCategoryName = 10;
+    UpdateCategoryDescription updateCategoryDescription = 11;
+    RemoveCategory removeCategory = 12;
+    AddLicense addLicense = 13;
+    UpdateLicenseCode updateLicenseCode = 14;
+    UpdateLicenseName updateLicenseName = 15;
+    UpdateLicenseDescription updateLicenseDescription = 16;
+    UpdateLicenseUrl updateLicenseUrl = 17;
+    RemoveLicense removeLicense = 18;
+    AddEncoding addEncoding = 19;
+    UpdateEncodingName updateEncodingName = 20;
+    RemoveEncoding removeEncoding = 21;
+  }
+}

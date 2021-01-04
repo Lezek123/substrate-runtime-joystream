@@ -74,8 +74,8 @@ contract ContentDirectory is RuntimeManageable, Pausable {
   event VideoReactivated(uint256 _id);
 
   // Custom operations
-  event CustomLeadOperationRequestSent(string _requestData);
-  event CustomCuratorOperationRequestSent(string _requestData, uint256 _curatorId);
+  event CustomLeadOperationRequestSent(bytes _requestData);
+  event CustomCuratorOperationRequestSent(bytes _requestData, uint256 _curatorId);
 
   // Common modifiers/helpers
   function _isActiveLead(address _address) internal view returns (bool) {
@@ -526,11 +526,11 @@ contract ContentDirectory is RuntimeManageable, Pausable {
     emit VideoReactivated(_videoId);
   }
 
-  function sendCustomLeadOperationRequest(string memory _requestData) public onlyLead whenNotPaused {
+  function sendCustomLeadOperationRequest(bytes memory _requestData) public onlyLead whenNotPaused {
     emit CustomLeadOperationRequestSent(_requestData);
   }
 
-  function sendCustomCuratorOperationRequest(string memory _requestData, uint256 _curatorId) public whenNotPaused {
+  function sendCustomCuratorOperationRequest(bytes memory _requestData, uint256 _curatorId) public whenNotPaused {
     require(_isCurator(msg.sender, _curatorId), "Access denied");
     emit CustomCuratorOperationRequestSent(_requestData, _curatorId);
   }
