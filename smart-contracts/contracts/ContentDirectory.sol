@@ -236,7 +236,7 @@ contract ContentDirectory is RuntimeManageable, Pausable {
     uint256 _curatorId,
     ChannelOwnership memory _ownership
   ) internal view returns (bool) {
-    return _ownership.isCuratorGroup() ? _isActiveLead(_address) : _isCurator(_address, _curatorId);
+    return (!_ownership.isCuratorGroup() && _isCurator(_address, _curatorId)) ||  _isActiveLead(_address);
   }
 
   function _hasGroupAccessToOperation(
@@ -265,33 +265,36 @@ contract ContentDirectory is RuntimeManageable, Pausable {
     emit ChannelCreated(channelId, _ownership, _metadata);
   }
 
-  function updateChannelMetadata(uint256 _channelId, string memory _metadata) public whenNotPaused {
+  function updateChannelMetadataAsOwner(uint256 _channelId, string memory _metadata) public whenNotPaused {
     Channel memory channel = channelStorage.getExistingChannel(_channelId);
     require(_hasOwnerAccess(msg.sender, channel.ownership), "Owner access required");
     emit ChannelMetadataUpdated(_channelId, _metadata);
   }
 
-  // updateChannelMetadata overload with curator context (_curatorId)
-  function updateChannelMetadataAsCurator(
+  function updateChannelMetadataAsCuratorGroupMember(
     uint256 _channelId,
     string memory _metadata,
     uint256 _curatorId
   ) public whenNotPaused {
     Channel memory channel = channelStorage.getExistingChannel(_channelId);
     require(
-      _canCurate(msg.sender, _curatorId, channel.ownership) ||
-        _hasGroupAccessToOperation(
-          msg.sender,
-          _curatorId,
-          channel.ownership,
-          ContentDirectoryOperation.UpdateChannelMetadata
-        ),
+      _hasGroupAccessToOperation(msg.sender, _curatorId, channel.ownership, ContentDirectoryOperation.UpdateChannelMetadata),
       "Access denied"
     );
     emit ChannelMetadataUpdated(_channelId, _metadata);
   }
 
-  function transferChannelOwnership(uint256 _channelId, ChannelOwnership memory _newOwnership) public whenNotPaused {
+  function updateChannelMetadataAsCurator(
+    uint256 _channelId,
+    string memory _metadata,
+    uint256 _curatorId
+  ) public whenNotPaused {
+    Channel memory channel = channelStorage.getExistingChannel(_channelId);
+    require(_canCurate(msg.sender, _curatorId, channel.ownership), "Access denied");
+    emit ChannelMetadataUpdated(_channelId, _metadata);
+  }
+
+  function transferChannelOwnershipAsOwner(uint256 _channelId, ChannelOwnership memory _newOwnership) public whenNotPaused {
     Channel memory channel = channelStorage.getExistingChannel(_channelId);
     require(_hasOwnerAccess(msg.sender, channel.ownership), "Owner access required");
     _validateOwnership(_newOwnership);
@@ -351,7 +354,7 @@ contract ContentDirectory is RuntimeManageable, Pausable {
     emit ChannelReactivated(_channelId);
   }
 
-  function removeChannel(uint256 _channelId) public whenNotPaused {
+  function removeChannelAsOwner(uint256 _channelId) public whenNotPaused {
     Channel memory channel = channelStorage.getExistingChannel(_channelId);
     require(_hasOwnerAccess(msg.sender, channel.ownership), "Owner access required");
     require(videoStorage.videoCountByChannelId(_channelId) == 0, "Cannot remove a channel unless it has no videos");
@@ -413,7 +416,7 @@ contract ContentDirectory is RuntimeManageable, Pausable {
   }
 
   // VIDEOS
-  function addVideo(uint256 _channelId, string memory _metadata) public whenNotPaused {
+  function addVideoAsChannelOwner(uint256 _channelId, string memory _metadata) public whenNotPaused {
     Channel memory channel = channelStorage.getExistingChannel(_channelId);
     require(_hasOwnerAccess(msg.sender, channel.ownership), "Owner access required");
     require(channel.isActive, "Cannot add video to a channel that isn't active");
@@ -423,8 +426,7 @@ contract ContentDirectory is RuntimeManageable, Pausable {
     emit VideoAdded(videoId, _channelId, _metadata);
   }
 
-  // addVideo - curator context overload
-  function addVideoAsCurator(
+  function addVideoAsCuratorGroupMember(
     uint256 _channelId,
     string memory _metadata,
     uint256 _curatorId
@@ -441,15 +443,14 @@ contract ContentDirectory is RuntimeManageable, Pausable {
     emit VideoAdded(videoId, _channelId, _metadata);
   }
 
-  function updateVideoMetadata(uint256 _videoId, string memory _metadata) public whenNotPaused {
+  function updateVideoMetadataAsChannelOwner(uint256 _videoId, string memory _metadata) public whenNotPaused {
     Video memory video = videoStorage.getExistingVideo(_videoId);
     Channel memory channel = channelStorage.getExistingChannel(video.channelId);
     require(_hasOwnerAccess(msg.sender, channel.ownership), "Owner access required");
     emit VideoMetadataUpdated(_videoId, _metadata);
   }
 
-  // updateVideoMetadata - curator context overload
-  function updateVideoMetadataAsCurator(
+  function updateVideoMetadataAsCuratorGroupMember(
     uint256 _videoId,
     string memory _metadata,
     uint256 _curatorId
@@ -457,18 +458,24 @@ contract ContentDirectory is RuntimeManageable, Pausable {
     Video memory video = videoStorage.getExistingVideo(_videoId);
     Channel memory channel = channelStorage.getExistingChannel(video.channelId);
     require(
-      _hasGroupAccessToOperation(
-        msg.sender,
-        _curatorId,
-        channel.ownership,
-        ContentDirectoryOperation.UpdateVideoMetadata
-      ) || _canCurate(msg.sender, _curatorId, channel.ownership),
+      _hasGroupAccessToOperation( msg.sender, _curatorId, channel.ownership, ContentDirectoryOperation.UpdateVideoMetadata),
       "Access denied"
     );
     emit VideoMetadataUpdated(_videoId, _metadata);
   }
 
-  function removeVideo(uint256 _videoId) public whenNotPaused {
+  function updateVideoMetadataAsCurator(
+    uint256 _videoId,
+    string memory _metadata,
+    uint256 _curatorId
+  ) public whenNotPaused {
+    Video memory video = videoStorage.getExistingVideo(_videoId);
+    Channel memory channel = channelStorage.getExistingChannel(video.channelId);
+    require(_canCurate(msg.sender, _curatorId, channel.ownership), "Access denied");
+    emit VideoMetadataUpdated(_videoId, _metadata);
+  }
+
+  function removeVideoAsChannelOwner(uint256 _videoId) public whenNotPaused {
     Video memory video = videoStorage.getExistingVideo(_videoId);
     Channel memory channel = channelStorage.getExistingChannel(video.channelId);
     require(_hasOwnerAccess(msg.sender, channel.ownership), "Owner access required");
@@ -476,8 +483,7 @@ contract ContentDirectory is RuntimeManageable, Pausable {
     emit VideoRemoved(_videoId);
   }
 
-  // removeVideo - group channel video removal overload
-  function removeGroupChannelVideoAsCurator(uint256 _videoId, uint256 _curatorId) public whenNotPaused {
+  function removeVideoAsCuratorGroupMember(uint256 _videoId, uint256 _curatorId) public whenNotPaused {
     Video memory video = videoStorage.getExistingVideo(_videoId);
     Channel memory channel = channelStorage.getExistingChannel(video.channelId);
     require(channel.ownership.isCuratorGroup(), "The video does not belong to Curator Group channel");
@@ -489,7 +495,6 @@ contract ContentDirectory is RuntimeManageable, Pausable {
     emit VideoRemoved(_videoId);
   }
 
-  // removeVideo - curator context + reason overload
   function removeVideoAsCurator(
     uint256 _videoId,
     uint256 _curatorId,

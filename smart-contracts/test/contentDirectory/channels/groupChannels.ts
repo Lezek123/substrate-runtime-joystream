@@ -12,9 +12,21 @@ import {
 } from '../../utils/consts'
 import { getCurrentInstances, setDefaultCaller } from '../../utils/contracts'
 import { ContentDirectoryInstance } from '../../../types/truffle-contracts'
+import {
+  testChannelOwnerActionsAllowed,
+  testChannelOwnerActionsDisallowed,
+  testChannelOwnerVideoActionsAllowed,
+  testChannelOwnerVideoActionsDisallowed,
+} from './ownerActions'
+import {
+  testChannelCuratorActionsAllowed,
+  testChannelCuratorActionsDisallowed,
+  testChannelCuratorVideoActionsAllowed,
+  testChannelCuratorVideoActionsDisallowed,
+} from './curatorActions'
+import { testChannelCuratorGroupMemberActionsDisallowed } from './groupMemberActions'
 
 // TODO: Import events types (but need to deal with BN inside struct type incompatibility)
-// TODO: Create custom assertions like "assertChannelRemoved" based on memberChannels tests and use them here?
 
 const groupChannelsTests = (accounts: string[]): void => {
   let contentDirectory: ContentDirectoryInstance
@@ -66,17 +78,16 @@ const groupChannelsTests = (accounts: string[]): void => {
       })
     })
 
-    describe('The lead', () => {
+    describe('The lead (owner)', () => {
       before(() => {
         // Set default address for all tests under this "describe"
         setDefaultCaller(accounts[LEAD_ADDRESS_INDEX])
       })
 
-      it('should be able to update the channel', async () => {
-        await contentDirectory.updateChannelMetadata(1, channelMetadataUpdate)
-      })
+      testChannelOwnerActionsAllowed(1, accounts)
+      testChannelCuratorActionsAllowed(1, 1)
 
-      it('should be able to transfer channel ownership to a different group', async () => {
+      it('can transfer channel ownership to a different group', async () => {
         // Create a new group
         await contentDirectory.createCuratorGroup([false, false, false, false], {
           from: accounts[LEAD_ADDRESS_INDEX],
@@ -88,47 +99,19 @@ const groupChannelsTests = (accounts: string[]): void => {
         }
 
         // Transfer the ownership
-        await contentDirectory.transferChannelOwnership(1, newOwnership)
+        await contentDirectory.transferChannelOwnershipAsOwner(1, newOwnership)
         // Confirm the transfer
         await contentDirectory.acceptChannelOwnershipTransfer(1)
-      })
-
-      it('should be able to remove the channel', async () => {
-        await contentDirectory.removeChannel(1)
-      })
-
-      it('should be able to publish a video under the channel', async () => {
-        await contentDirectory.addVideo(1, videoMetadata)
-      })
-
-      it('should be able to change the channel video limit', async () => {
-        const newLimit = 100
-        await contentDirectory.updateChannelVideoLimit(1, newLimit, 1)
-      })
-
-      it('should be able to deactivate and reactivate the channel', async () => {
-        const reason = 'This channel breaks the rules'
-        await contentDirectory.deactivateChannel(1, reason, 1)
-        await contentDirectory.activateChannel(1, 1)
       })
 
       describe('Managing videos', () => {
         // Each of those tests expect an existing video
         beforeEach(async () => {
-          await contentDirectory.addVideo(1, videoMetadata)
+          await contentDirectory.addVideoAsChannelOwner(1, videoMetadata)
         })
 
-        it('should NOT be able to remove the channel if it has a video', async () => {
-          await truffleAssert.reverts(contentDirectory.removeChannel(1))
-        })
-
-        it('should be able to update video under the channel', async () => {
-          await contentDirectory.updateVideoMetadata(1, videoMetadataUpdate)
-        })
-
-        it('should be able to remove video under the channel', async () => {
-          await contentDirectory.removeVideo(1)
-        })
+        testChannelOwnerVideoActionsAllowed(1)
+        testChannelCuratorVideoActionsAllowed(1, 1)
       })
     })
 
@@ -145,19 +128,26 @@ const groupChannelsTests = (accounts: string[]): void => {
         })
       })
 
-      it('should be able to update the channel', async () => {
-        await contentDirectory.updateChannelMetadataAsCurator(1, channelMetadataUpdate, 1)
+      testChannelOwnerActionsDisallowed(1)
+      testChannelCuratorActionsDisallowed(1, 1, accounts)
+
+      describe('as curator group member', () => {
+        it('can update the channel', async () => {
+          await contentDirectory.updateChannelMetadataAsCuratorGroupMember(1, channelMetadataUpdate, 1)
+        })
+
+        it('can publish a video', async () => {
+          await contentDirectory.addVideoAsCuratorGroupMember(1, videoMetadata, 1)
+        })
+
+        it('can NOT publish a video when channel is deactivated', async () => {
+          // Deactivate the channel as lead first
+          await contentDirectory.deactivateChannel(1, 'Test', 1, { from: accounts[LEAD_ADDRESS_INDEX] })
+          await truffleAssert.reverts(contentDirectory.addVideoAsCuratorGroupMember(1, videoMetadata, 1))
+        })
       })
 
-      it('should NOT be able to initialize channel ownership transfer', async () => {
-        const newOwnership = {
-          ownershipType: ChannelOwnerType.CuratorGroup,
-          ownerId: 1,
-        }
-        await truffleAssert.reverts(contentDirectory.transferChannelOwnership(1, newOwnership))
-      })
-
-      it('should NOT be able to accept pending ownership transfer', async () => {
+      it('can NOT accept pending ownership transfer to a new group', async () => {
         // Create a valid pending transfer as lead
         await contentDirectory.createCuratorGroup([false, false, false, false], {
           from: accounts[LEAD_ADDRESS_INDEX],
@@ -166,60 +156,32 @@ const groupChannelsTests = (accounts: string[]): void => {
           ownershipType: ChannelOwnerType.CuratorGroup,
           ownerId: 2,
         }
-        await contentDirectory.transferChannelOwnership(1, newOwnership, {
+        await contentDirectory.transferChannelOwnershipAsOwner(1, newOwnership, {
           from: accounts[LEAD_ADDRESS_INDEX],
         })
         // Try to accept
         await truffleAssert.reverts(contentDirectory.acceptChannelOwnershipTransfer(1))
       })
 
-      it('should NOT be able to remove the channel', async () => {
-        await truffleAssert.reverts(contentDirectory.removeChannel(1))
-      })
-
-      it('should be able to publish a video under the channel', async () => {
-        await contentDirectory.addVideoAsCurator(1, videoMetadata, 1)
-      })
-
-      it('should NOT be able to update the channel video limit', async () => {
-        await truffleAssert.reverts(contentDirectory.updateChannelVideoLimit(1, 100, 1))
-      })
-
-      it('should NOT be able to deactivate the channel', async () => {
-        await truffleAssert.reverts(contentDirectory.deactivateChannel(1, 'Malicous deactivation!', 1))
-      })
-
-      describe('Deactivated channel', () => {
-        // Each of those tests expect the channel to be deactivated
-        beforeEach(async () => {
-          await contentDirectory.deactivateChannel(1, 'Test', 1, {
-            from: accounts[LEAD_ADDRESS_INDEX],
-          })
-        })
-
-        it('should NOT be able to reactivate the channel', async () => {
-          await truffleAssert.reverts(contentDirectory.activateChannel(1, 1))
-        })
-
-        it('should NOT be able to publish a video', async () => {
-          await truffleAssert.reverts(contentDirectory.addVideoAsCurator(1, videoMetadata, 1))
-        })
-      })
-
       describe('Managing videos', () => {
         // Each of those tests expect an existing video
         beforeEach(async () => {
-          await contentDirectory.addVideo(1, videoMetadata, {
+          await contentDirectory.addVideoAsChannelOwner(1, videoMetadata, {
             from: accounts[LEAD_ADDRESS_INDEX],
           })
         })
 
-        it('should be able to update video under the channel', async () => {
-          await contentDirectory.updateVideoMetadataAsCurator(1, videoMetadataUpdate, 1)
-        })
+        testChannelOwnerVideoActionsDisallowed(1)
+        testChannelCuratorVideoActionsDisallowed(1, 1)
 
-        it('should be able to remove video under the channel', async () => {
-          await contentDirectory.removeGroupChannelVideoAsCurator(1, 1)
+        describe('as curator group member', () => {
+          it('can update a video under the channel', async () => {
+            await contentDirectory.updateVideoMetadataAsCuratorGroupMember(1, videoMetadataUpdate, 1)
+          })
+
+          it('can remove a video under the channel', async () => {
+            await contentDirectory.removeVideoAsCuratorGroupMember(1, 1)
+          })
         })
       })
     })
@@ -237,74 +199,21 @@ const groupChannelsTests = (accounts: string[]): void => {
         })
       })
 
-      it('should NOT be able to update the channel', async () => {
-        await truffleAssert.reverts(contentDirectory.updateChannelMetadataAsCurator(1, channelMetadataUpdate, 1))
-      })
-
-      it('should NOT be able to transfer channel ownership', async () => {
-        const newOwnership = {
-          ownershipType: ChannelOwnerType.CuratorGroup,
-          ownerId: 1,
-        }
-        await truffleAssert.reverts(contentDirectory.transferChannelOwnership(1, newOwnership))
-      })
-
-      it('should NOT be able to accept pending ownership transfer', async () => {
-        // Create a valid pending transfer as lead first
-        await contentDirectory.createCuratorGroup([false, false, false, false], {
-          from: accounts[LEAD_ADDRESS_INDEX],
-        })
-        const newOwnership = {
-          ownershipType: ChannelOwnerType.CuratorGroup,
-          ownerId: 2,
-        }
-        await contentDirectory.transferChannelOwnership(1, newOwnership, {
-          from: accounts[LEAD_ADDRESS_INDEX],
-        })
-        // Try to accept
-        await truffleAssert.reverts(contentDirectory.acceptChannelOwnershipTransfer(1))
-      })
-
-      it('should NOT be able to remove the channel', async () => {
-        await truffleAssert.reverts(contentDirectory.removeChannel(1))
-      })
-
-      it('should NOT be able to publish a video under the channel', async () => {
-        await truffleAssert.reverts(contentDirectory.addVideoAsCurator(1, videoMetadata, 1))
-      })
-
-      it('should NOT be able to update the channel video limit', async () => {
-        await truffleAssert.reverts(contentDirectory.updateChannelVideoLimit(1, 100, 1))
-      })
-
-      it('should NOT be able to deactivate the channel', async () => {
-        await truffleAssert.reverts(contentDirectory.deactivateChannel(1, 'Malicous deactivation!', 1))
-      })
-
-      it('should NOT be able to reactivate the channel once deactivated', async () => {
-        // Deactivate the channel as lead first
-        await contentDirectory.deactivateChannel(1, 'Test', 1, {
-          from: accounts[LEAD_ADDRESS_INDEX],
-        })
-
-        await truffleAssert.reverts(contentDirectory.activateChannel(1, 1))
-      })
+      testChannelOwnerActionsDisallowed(1)
+      testChannelCuratorActionsDisallowed(1, 1, accounts)
+      testChannelCuratorGroupMemberActionsDisallowed(1, 1)
 
       describe('Managing videos', () => {
         // Each of those tests expect an existing video
         beforeEach(async () => {
-          await contentDirectory.addVideo(1, videoMetadata, {
+          await contentDirectory.addVideoAsChannelOwner(1, videoMetadata, {
             from: accounts[LEAD_ADDRESS_INDEX],
           })
         })
 
-        it('should NOT be able to update video under the channel', async () => {
-          await truffleAssert.reverts(contentDirectory.updateVideoMetadataAsCurator(1, videoMetadataUpdate, 1))
-        })
-
-        it('should NOT be able to remove video under the channel', async () => {
-          await truffleAssert.reverts(contentDirectory.removeGroupChannelVideoAsCurator(1, 1))
-        })
+        testChannelOwnerVideoActionsDisallowed(1)
+        testChannelCuratorVideoActionsDisallowed(1, 1)
+        testChannelCuratorGroupMemberActionsDisallowed(1, 1)
       })
     })
   })
