@@ -1,0 +1,44 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://joystream.org/schemas/VideoMediaMetadata.schema.json",
+    "title": "VideoMediaMetadata",
+    "description": "An object describing video media metadata properties like width, height, encoding and location",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "encoding",
+        "pixelWidth",
+        "pixelHeight",
+        "location"
+    ],
+    "properties": {
+        "encoding": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "description": "ID of the related media encoding"
+        },
+        "pixelWidth": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535,
+            "description": "Video media width in pixels"
+        },
+        "pixelHeight": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535,
+            "description": "Video media height in pixels"
+        },
+        "size": {
+            "type": [
+                "integer",
+                "null"
+            ],
+            "minimum": 1,
+            "description": "Video media size in bytes"
+        },
+        "location": {
+          "$ref": "./MediaLocationMetadata.schema.json"
+        }
+    }
+}
