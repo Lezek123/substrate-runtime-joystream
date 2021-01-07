@@ -1,7 +1,9 @@
-import { Api, WorkingGroups } from '../../Api'
-import { assert } from 'chai'
-import { KeyringPair } from '@polkadot/keyring/types'
+import { FlowProps } from '../../Flow'
+import Debugger from 'debug'
+const debug = Debugger('initializeContentDirectory')
 
-export default async function initializeContentDirectory(api: Api, leadKeyPair: KeyringPair) {
-  await api.initializeContentDirectory(leadKeyPair)
+export default async function initializeContentDirectory({ api }: FlowProps): Promise<void> {
+  debug('Started')
+  await api.initializeContentDirectory()
+  debug('Done')
 }

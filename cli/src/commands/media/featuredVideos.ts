@@ -1,6 +1,6 @@
 import ContentDirectoryCommandBase from '../../base/ContentDirectoryCommandBase'
 import { displayTable } from '../../helpers/display'
-import { FeaturedVideoEntity, VideoEntity } from 'cd-schemas/types/entities'
+import { FeaturedVideoEntity, VideoEntity } from '@joystream/cd-schemas/types/entities'
 import chalk from 'chalk'
 
 export default class FeaturedVideosCommand extends ContentDirectoryCommandBase {
@@ -11,7 +11,7 @@ export default class FeaturedVideosCommand extends ContentDirectoryCommandBase {
     const featured = await Promise.all(
       featuredEntries
         .filter(([, entity]) => entity.supported_schemas.toArray().length) // Ignore FeaturedVideo entities without schema
-        .map(([, entity]) => this.parseToKnownEntityJson<FeaturedVideoEntity>(entity))
+        .map(([, entity]) => this.parseToEntityJson<FeaturedVideoEntity>(entity))
     )
 
     const videoIds: number[] = featured.map(({ video: videoId }) => videoId)

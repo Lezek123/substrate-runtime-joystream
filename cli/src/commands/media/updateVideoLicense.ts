@@ -1,6 +1,6 @@
 import MediaCommandBase from '../../base/MediaCommandBase'
-import { LicenseEntity, VideoEntity } from 'cd-schemas/types/entities'
-import { InputParser } from 'cd-schemas'
+import { LicenseEntity, VideoEntity } from '@joystream/cd-schemas/types/entities'
+import { InputParser } from '@joystream/cd-schemas'
 import { Entity } from '@joystream/types/content-directory'
 import { createType } from '@joystream/types'
 
@@ -37,7 +37,7 @@ export default class UpdateVideoLicenseCommand extends MediaCommandBase {
       videoEntity = video
     }
 
-    const video = await this.parseToKnownEntityJson<VideoEntity>(videoEntity)
+    const video = await this.parseToEntityJson<VideoEntity>(videoEntity)
     const currentLicense = await this.getAndParseKnownEntity<LicenseEntity>(video.license)
 
     this.log('Current license:', currentLicense)

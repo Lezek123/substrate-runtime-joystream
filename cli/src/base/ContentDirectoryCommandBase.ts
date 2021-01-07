@@ -1,7 +1,7 @@
 import ExitCodes from '../ExitCodes'
 import { WorkingGroups } from '../Types'
-import { ReferenceProperty } from 'cd-schemas/types/extrinsics/AddClassSchema'
-import { FlattenRelations } from 'cd-schemas/types/utility'
+import { ReferenceProperty } from '@joystream/cd-schemas/types/extrinsics/AddClassSchema'
+import { FlattenRelations } from '@joystream/cd-schemas/types/utility'
 import { BOOL_PROMPT_OPTIONS } from '../helpers/prompting'
 import {
   Class,
@@ -11,18 +11,25 @@ import {
   Entity,
   EntityId,
   Actor,
+  PropertyType,
+  Property,
 } from '@joystream/types/content-directory'
 import { Worker } from '@joystream/types/working-group'
 import { CLIError } from '@oclif/errors'
 import { Codec } from '@polkadot/types/types'
+import AbstractInt from '@polkadot/types/codec/AbstractInt'
+import { AnyJson } from '@polkadot/types/types/helpers'
 import _ from 'lodash'
 import { RolesCommandBase } from './WorkingGroupsCommandBase'
 import { createType } from '@joystream/types'
 import chalk from 'chalk'
 import { flags } from '@oclif/command'
+import { DistinctQuestion } from 'inquirer'
 
 const CONTEXTS = ['Member', 'Curator', 'Lead'] as const
 type Context = typeof CONTEXTS[number]
+
+type ParsedPropertyValue = { value: Codec | null; type: PropertyType['type']; subtype: PropertyType['subtype'] }
 
 /**
  * Abstract base class for commands related to content directory
@@ -242,7 +249,7 @@ export default abstract class ContentDirectoryCommandBase extends RolesCommandBa
 
   async getAndParseKnownEntity<T>(id: string | number, className?: string): Promise<FlattenRelations<T>> {
     const entity = await this.getEntity(id, className)
-    return this.parseToKnownEntityJson<T>(entity)
+    return this.parseToEntityJson<T>(entity)
   }
 
   async entitiesByClassAndOwner(classNameOrId: number | string, ownerMemberId?: number): Promise<[EntityId, Entity][]> {
@@ -278,7 +285,7 @@ export default abstract class ContentDirectoryCommandBase extends RolesCommandBa
       choices: entityEntries.map(([id, entity]) => {
         const parsedEntityPropertyValues = this.parseEntityPropertyValues(entity, entityClass)
         return {
-          name: (propName && parsedEntityPropertyValues[propName]?.value.toString()) || `ID:${id.toString()}`,
+          name: (propName && parsedEntityPropertyValues[propName]?.value?.toString()) || `ID:${id.toString()}`,
           value: id.toString(), // With numbers there are issues with "default"
         }
       }),
@@ -298,31 +305,46 @@ export default abstract class ContentDirectoryCommandBase extends RolesCommandBa
     return (await this.promptForEntityEntry(message, className, propName, ownerMemberId, defaultId))[0].toNumber()
   }
 
+  parseStoredPropertyInnerValue(value: Codec | null): AnyJson {
+    if (value === null) {
+      return null
+    }
+
+    if (value instanceof AbstractInt) {
+      return value.toNumber() // Integers (signed ones) are by default converted to hex when using .toJson()
+    }
+
+    return value.toJSON()
+  }
+
   parseEntityPropertyValues(
     entity: Entity,
     entityClass: Class,
     includedProperties?: string[]
-  ): Record<string, { value: Codec; type: string }> {
+  ): Record<string, ParsedPropertyValue> {
     const { properties } = entityClass
     return Array.from(entity.getField('values').entries()).reduce((columns, [propId, propValue]) => {
       const prop = properties[propId.toNumber()]
       const propName = prop.name.toString()
       const included = !includedProperties || includedProperties.some((p) => p.toLowerCase() === propName.toLowerCase())
+      const { type: propType, subtype: propSubtype } = prop.property_type
 
       if (included) {
         columns[propName] = {
-          value: propValue.getValue(),
-          type: `${prop.property_type.type}<${prop.property_type.subtype}>`,
+          // If type doesn't match (Boolean(false) for optional fields case) - use "null" as value
+          value: propType !== propValue.type || propSubtype !== propValue.subtype ? null : propValue.getValue(),
+          type: propType,
+          subtype: propSubtype,
         }
       }
       return columns
-    }, {} as Record<string, { value: Codec; type: string }>)
+    }, {} as Record<string, ParsedPropertyValue>)
   }
 
-  async parseToKnownEntityJson<T>(entity: Entity): Promise<FlattenRelations<T>> {
+  async parseToEntityJson<T = unknown>(entity: Entity): Promise<FlattenRelations<T>> {
     const entityClass = (await this.classEntryByNameOrId(entity.class_id.toString()))[1]
     return (_.mapValues(this.parseEntityPropertyValues(entity, entityClass), (v) =>
-      v.type !== 'Single<Bool>' && v.value.toJSON() === false ? null : v.value.toJSON()
+      this.parseStoredPropertyInnerValue(v.value)
     ) as unknown) as FlattenRelations<T>
   }
 
@@ -349,11 +371,131 @@ export default abstract class ContentDirectoryCommandBase extends RolesCommandBa
         'ID': id.toString(),
         ...defaultValues,
         ..._.mapValues(this.parseEntityPropertyValues(entity, entityClass, includedProps), (v) =>
-          v.value.toJSON() === false && v.type !== 'Single<Bool>' ? chalk.grey('[not set]') : v.value.toString()
+          v.value === null ? chalk.grey('[not set]') : v.value.toString()
         ),
       }))
     )) as Record<string, string>[]
 
     return parsedEntities.filter((entity) => filters.every(([pName, pValue]) => entity[pName] === pValue))
+  }
+
+  async getActor(context: typeof CONTEXTS[number], pickedClass: Class) {
+    let actor: Actor
+    if (context === 'Member') {
+      const memberId = await this.getRequiredMemberId()
+      actor = this.createType('Actor', { Member: memberId })
+    } else if (context === 'Curator') {
+      actor = await this.getCuratorContext([pickedClass.name.toString()])
+    } else {
+      await this.getRequiredLead()
+
+      actor = this.createType('Actor', { Lead: null })
+    }
+
+    return actor
+  }
+
+  isActorEntityController(actor: Actor, entity: Entity, isMaintainer: boolean): boolean {
+    const entityController = entity.entity_permissions.controller
+    return (
+      (isMaintainer && entityController.isOfType('Maintainers')) ||
+      (entityController.isOfType('Member') &&
+        actor.isOfType('Member') &&
+        entityController.asType('Member').eq(actor.asType('Member'))) ||
+      (entityController.isOfType('Lead') && actor.isOfType('Lead'))
+    )
+  }
+
+  async isEntityPropertyEditableByActor(entity: Entity, classPropertyId: number, actor: Actor): Promise<boolean> {
+    const [, entityClass] = await this.classEntryByNameOrId(entity.class_id.toString())
+
+    const isActorMaintainer =
+      actor.isOfType('Curator') &&
+      entityClass.class_permissions.maintainers.toArray().some((groupId) => groupId.eq(actor.asType('Curator')[0]))
+
+    const isActorController = this.isActorEntityController(actor, entity, isActorMaintainer)
+
+    const {
+      is_locked_from_controller: isLockedFromController,
+      is_locked_from_maintainer: isLockedFromMaintainer,
+    } = entityClass.properties[classPropertyId].locking_policy
+
+    return (
+      (isActorController && !isLockedFromController.valueOf()) ||
+      (isActorMaintainer && !isLockedFromMaintainer.valueOf())
+    )
+  }
+
+  getQuestionsFromProperties(properties: Property[], defaults?: { [key: string]: unknown }): DistinctQuestion[] {
+    return properties.reduce((previousValue, { name, property_type: propertyType, required }) => {
+      const propertySubtype = propertyType.subtype
+      const questionType = propertySubtype === 'Bool' ? 'list' : 'input'
+      const isSubtypeNumber = propertySubtype.toLowerCase().includes('int')
+      const isSubtypeReference = propertyType.isOfType('Single') && propertyType.asType('Single').isOfType('Reference')
+
+      const validate = async (answer: string | number | null) => {
+        if (answer === null) {
+          return true // Can only happen through "filter" if property is not required
+        }
+
+        if ((isSubtypeNumber || isSubtypeReference) && parseInt(answer.toString()).toString() !== answer.toString()) {
+          return `Expected integer value!`
+        }
+
+        if (isSubtypeReference) {
+          try {
+            await this.getEntity(+answer, propertyType.asType('Single').asType('Reference')[0].toString())
+          } catch (e) {
+            return e.message || JSON.stringify(e)
+          }
+        }
+
+        return true
+      }
+
+      const optionalQuestionProperties = {
+        ...{
+          filter: async (answer: string) => {
+            if (required.isFalse && !answer) {
+              return null
+            }
+
+            // Only cast to number if valid
+            // Prevents inquirer bug not allowing to edit invalid values when casted to number
+            // See: https://github.com/SBoudrias/Inquirer.js/issues/866
+            if ((isSubtypeNumber || isSubtypeReference) && (await validate(answer)) === true) {
+              return parseInt(answer)
+            }
+
+            return answer
+          },
+          validate,
+        },
+        ...(propertySubtype === 'Bool' && {
+          choices: ['true', 'false'],
+          filter: (answer: string) => {
+            return answer === 'true' || false
+          },
+        }),
+      }
+
+      const isQuestionOptional = propertySubtype === 'Bool' ? '' : required.isTrue ? '(required)' : '(optional)'
+      const classId = isSubtypeReference
+        ? ` [Class Id: ${propertyType.asType('Single').asType('Reference')[0].toString()}]`
+        : ''
+
+      return [
+        ...previousValue,
+        {
+          name: name.toString(),
+          message: `${name} - ${propertySubtype}${classId} ${isQuestionOptional}`,
+          type: questionType,
+          ...optionalQuestionProperties,
+          ...(defaults && {
+            default: propertySubtype === 'Bool' ? JSON.stringify(defaults[name.toString()]) : defaults[name.toString()],
+          }),
+        },
+      ]
+    }, [] as DistinctQuestion[])
   }
 }

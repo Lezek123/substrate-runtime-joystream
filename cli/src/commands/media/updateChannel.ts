@@ -1,7 +1,7 @@
 import ContentDirectoryCommandBase from '../../base/ContentDirectoryCommandBase'
-import ChannelEntitySchema from 'cd-schemas/schemas/entities/ChannelEntity.schema.json'
-import { ChannelEntity } from 'cd-schemas/types/entities/ChannelEntity'
-import { InputParser } from 'cd-schemas'
+import ChannelEntitySchema from '@joystream/cd-schemas/schemas/entities/ChannelEntity.schema.json'
+import { ChannelEntity } from '@joystream/cd-schemas/types/entities/ChannelEntity'
+import { InputParser } from '@joystream/cd-schemas'
 import { IOFlags, getInputJson, saveOutputJson } from '../../helpers/InputOutput'
 import { JSONSchema } from '@apidevtools/json-schema-ref-parser'
 import { JsonSchemaCustomPrompts, JsonSchemaPrompter } from '../../helpers/JsonSchemaPrompt'
@@ -57,7 +57,7 @@ export default class UpdateChannelCommand extends ContentDirectoryCommandBase {
       channelEntity = channel
     }
 
-    const currentValues = await this.parseToKnownEntityJson<ChannelEntity>(channelEntity)
+    const currentValues = await this.parseToEntityJson<ChannelEntity>(channelEntity)
     this.jsonPrettyPrint(JSON.stringify(currentValues))
 
     const channelJsonSchema = (ChannelEntitySchema as unknown) as JSONSchema

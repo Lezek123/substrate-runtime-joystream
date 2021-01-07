@@ -40,12 +40,12 @@ export interface IReference {
 }
 
 export interface IChannel {
-  title: string
+  handle: string
   description: string
   coverPhotoUrl: string
   avatarPhotoUrl: string
   isPublic: boolean
-  isCurated: boolean
+  isCurated?: boolean
   language?: IReference
 }
 
@@ -107,7 +107,7 @@ export interface IVideo {
   hasMarketing?: boolean
   publishedBeforeJoystream?: number
   isPublic: boolean
-  isCurated: boolean
+  isCurated?: boolean
   isExplicit: boolean
   license?: IReference
 }
@@ -115,6 +115,7 @@ export interface IVideo {
 export interface ILicense {
   knownLicense?: IReference
   userDefinedLicense?: IReference
+  attribution?: string
 }
 
 export interface IMediaLocation {
@@ -197,3 +198,12 @@ export interface IDBBlockId {
 }
 
 export type ClassEntityMap = Map<string, IEntity[]>
+
+export interface IFeaturedVideo {
+  video?: IReference
+}
+
+export interface IKnownClass {
+  name: string
+  classId: number
+}

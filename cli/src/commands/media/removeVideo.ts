@@ -1,6 +1,6 @@
 import ContentDirectoryCommandBase from '../../base/ContentDirectoryCommandBase'
 import { Entity } from '@joystream/types/content-directory'
-import { VideoEntity } from 'cd-schemas/types/entities'
+import { VideoEntity } from '@joystream/cd-schemas/types/entities'
 import { createType } from '@joystream/types'
 
 export default class RemoveVideoCommand extends ContentDirectoryCommandBase {
@@ -34,7 +34,7 @@ export default class RemoveVideoCommand extends ContentDirectoryCommandBase {
       videoEntity = video
     }
 
-    const video = await this.parseToKnownEntityJson<VideoEntity>(videoEntity)
+    const video = await this.parseToEntityJson<VideoEntity>(videoEntity)
 
     await this.requireConfirmation(`Are you sure you want to remove the "${video.title}" video?`)
 

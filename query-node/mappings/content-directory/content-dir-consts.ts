@@ -1,4 +1,4 @@
-import { IPropertyWithId } from '../types'
+import { IKnownClass, IPropertyWithId } from '../types'
 
 // Content directory predefined class names
 export enum ContentDirectoryKnownClasses {
@@ -14,10 +14,11 @@ export enum ContentDirectoryKnownClasses {
   VIDEO = 'Video',
   VIDEOMEDIA = 'VideoMedia',
   VIDEOMEDIAENCODING = 'VideoMediaEncoding',
+  FEATUREDVIDEOS = 'FeaturedVideo',
 }
 
 // Predefined content-directory classes, classId may change after the runtime seeding
-export const contentDirectoryClassNamesWithId: { classId: number; name: string }[] = [
+export const contentDirectoryClassNamesWithId: IKnownClass[] = [
   { name: ContentDirectoryKnownClasses.CHANNEL, classId: 1 },
   { name: ContentDirectoryKnownClasses.CATEGORY, classId: 2 },
   { name: ContentDirectoryKnownClasses.HTTPMEDIALOCATION, classId: 3 },
@@ -30,6 +31,7 @@ export const contentDirectoryClassNamesWithId: { classId: number; name: string }
   { name: ContentDirectoryKnownClasses.VIDEO, classId: 10 },
   { name: ContentDirectoryKnownClasses.VIDEOMEDIA, classId: 11 },
   { name: ContentDirectoryKnownClasses.VIDEOMEDIAENCODING, classId: 12 },
+  { name: ContentDirectoryKnownClasses.FEATUREDVIDEOS, classId: 13 },
 ]
 
 export const categoryPropertyNamesWithId: IPropertyWithId = {
@@ -38,18 +40,19 @@ export const categoryPropertyNamesWithId: IPropertyWithId = {
 }
 
 export const channelPropertyNamesWithId: IPropertyWithId = {
-  0: { name: 'title', type: 'string', required: false },
+  0: { name: 'handle', type: 'string', required: true },
   1: { name: 'description', type: 'string', required: false },
   2: { name: 'coverPhotoUrl', type: 'string', required: false },
   3: { name: 'avatarPhotoUrl', type: 'string', required: false },
   4: { name: 'isPublic', type: 'boolean', required: true },
   5: { name: 'isCurated', type: 'boolean', required: false },
-  6: { name: 'language', type: 'number', required: true },
+  6: { name: 'language', type: 'number', required: false },
 }
 
 export const licensePropertyNamesWithId: IPropertyWithId = {
   0: { name: 'knownLicense', type: 'number', required: false },
   1: { name: 'userDefinedLicense', type: 'number', required: false },
+  2: { name: 'attribution', type: 'string', required: false },
 }
 
 export const knownLicensePropertyNamesWIthId: IPropertyWithId = {
@@ -113,4 +116,8 @@ export const videoPropertyNamesWithId: IPropertyWithId = {
   12: { name: 'isExplicit', type: 'boolean', required: true },
   13: { name: 'license', type: 'number', required: true },
   14: { name: 'isCurated', type: 'boolean', required: true },
+}
+
+export const featuredVideoPropertyNamesWithId: IPropertyWithId = {
+  0: { name: 'video', type: 'number', required: true },
 }
