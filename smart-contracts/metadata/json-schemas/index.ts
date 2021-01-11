@@ -1,2 +1,4 @@
-export { default as ChannelMetadataSchema } from './ChannelMetadata.json'
-export { default as VideoMetadataSchema } from './VideoMetadata.json'
+import ChannelMetadataSchema from './ChannelMetadata.json'
+import VideoMetadataSchema from './VideoMetadata.json'
+
+export { ChannelMetadataSchema, VideoMetadataSchema }

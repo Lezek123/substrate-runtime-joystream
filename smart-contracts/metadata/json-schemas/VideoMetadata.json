@@ -28,7 +28,7 @@
           "maxLength": 1024,
           "description": "The description of the Video"
       },
-      "category": {
+      "categoryId": {
         "type": ["integer", "null"],
         "minimum": 1,
         "description": "ID of the related content category"
@@ -54,7 +54,7 @@
           "maxLength": 256,
           "description": "Video thumbnail url (recommended ratio: 16:9)"
       },
-      "language": {
+      "languageId": {
         "type": ["integer", "null"],
         "minimum": 1,
         "description": "ID of the content's language"
@@ -125,15 +125,16 @@
       "License": {
         "description": "License metadata assigned to a specific content",
         "type": "object",
-        "additionalProperties": false,
         "oneOf": [
           {
+            "additionalProperties": false,
             "required": ["userDefinedLicense"],
             "properties": {
               "userDefinedLicense": { "$ref": "#/definitions/UserDefinedLicense" }
             }
           },
           {
+            "additionalProperties": false,
             "required": ["knownLicense"],
             "properties": {
               "knownLicense": { "$ref": "#/definitions/KnownLicense" }
@@ -181,15 +182,16 @@
       "MediaLocation": {
         "description": "Media location metadata assigned to a content, describing how the associated media can be accessed",
         "type": "object",
-        "additionalProperties": false,
         "oneOf": [
           {
+            "additionalProperties": false,
             "required": [ "joystreamMediaLocation" ],
             "properties": {
               "joystreamMediaLocation": { "$ref": "#/definitions/JoystreamMediaLocation" }
             }
           },
           {
+            "additionalProperties": false,
             "required": [ "httpMediaLocation" ],
             "properties": {
               "httpMediaLocation": { "$ref": "#/definitions/HttpMediaLocation" }
@@ -202,13 +204,13 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-            "encoding",
+            "encodingId",
             "pixelWidth",
             "pixelHeight",
             "location"
         ],
         "properties": {
-            "encoding": {
+            "encodingId": {
               "type": ["integer", "null"],
               "minimum": 1,
               "description": "ID of the related media encoding"
