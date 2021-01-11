@@ -32,17 +32,17 @@ message AddLanguage {
 }
 
 message UpdateLanguageName {
-  required uint16 id = 1;
+  required uint32 id = 1;
   required string name = 2;
 }
 
 message UpdateLanguageCode {
-  required uint16 id = 1;
+  required uint32 id = 1;
   required string code = 2;
 }
 
 message RemoveLanguage {
-  required uint16 id = 1;
+  required uint32 id = 1;
 }
 
 // Categories
@@ -53,17 +53,17 @@ message AddCategory {
 }
 
 message UpdateCategoryName {
-  required uint16 id = 1;
+  required uint32 id = 1;
   required string name = 2;
 }
 
 message UpdateCategoryDescription {
-  required uint16 id = 1;
+  required uint32 id = 1;
   required string description = 2;
 }
 
 message RemoveCategory {
-  required uint16 id = 1;
+  required uint32 id = 1;
 }
 
 // Licenses
@@ -76,27 +76,27 @@ message AddLicense {
 }
 
 message UpdateLicenseCode {
-  required uint16 id = 1;
+  required uint32 id = 1;
   required string code = 2;
 }
 
 message UpdateLicenseName {
-  required uint16 id = 1;
+  required uint32 id = 1;
   required string name = 2;
 }
 
 message UpdateLicenseDescription {
-  required uint16 id = 1;
+  required uint32 id = 1;
   string description = 2;
 }
 
 message UpdateLicenseUrl {
-  required uint16 id = 1;
+  required uint32 id = 1;
   string url = 2;
 }
 
 message RemoveLicense {
-  required uint16 id = 1;
+  required uint32 id = 1;
 }
 
 // Encodings
@@ -106,12 +106,12 @@ message AddEncoding {
 }
 
 message UpdateEncodingName {
-  required uint16 id = 1;
+  required uint32 id = 1;
   required string name = 2;
 }
 
 message RemoveEncoding {
-  required uint16 id = 1;
+  required uint32 id = 1;
 }
 
 message LeadOperationRequest {

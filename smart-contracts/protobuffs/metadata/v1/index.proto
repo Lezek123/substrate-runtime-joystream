@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+message WrappedString {
+  string value = 1;
+}
+
+message WrappedBool {
+  bool value = 1;
+}
+
+message WrappedUint32 {
+  uint32 value = 1;
+}
+
+message ChannelMetadataV1 {
+  string title = 1;
+  string description = 2;
+  string coverPhotoUrl = 3;
+  string avatarPhotoUrl = 4;
+  bool isPublic = 5;
+  uint32 languageId = 6;
+  uint32 categoryId = 7;
+}
+
+message VideoMetadataV1 {
+  string title = 1;
+  string description = 2;
+  uint32 categoryId = 3;
+  uint32 duration = 4;
+  uint32 skippableIntroDuration = 5;
+  string thumbnailUrl = 6;
+  uint32 languageId = 7;
+  // VideoMedia media = 8;
+  bool hasMarketing = 9;
+  uint32 publishedBeforeJoystream = 10;
+  bool isPublic = 11;
+  bool isExplicit = 12;
+
+  message License {
+    message KnownLicense {
+      uint32 knownLicenseId = 1;
+      string attribution = 2;
+    }
+    message UserDefinedLicense {
+      string content = 1;
+    }
+    oneof type {
+      KnownLicense knownLicense = 1;
+      UserDefinedLicense userDefinedLicense = 2;
+    }
+  }
+  License license = 13;
+
+  message VideoMedia {
+    uint32 encodingId = 1;
+    uint32 pixelWidth = 2;
+    uint32 pixelHeight = 3;
+    uint32 size = 4;
+
+    message Location {
+      message HttpMediaLocation {
+        string url = 1;
+        uint32 port = 2;
+      }
+      message JoystreamMediaLocation {
+        string dataObjectId = 1;
+      }
+      oneof type {
+        HttpMediaLocation httpMediaLocation = 1;
+        JoystreamMediaLocation joystreamMediaLocation = 2;
+      }
+    }
+    Location location = 5;
+  }
+  VideoMedia media = 14;
+}

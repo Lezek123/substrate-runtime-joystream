@@ -3,3 +3,4 @@
 /types/truffle-contracts/
 /protobuffs/*.js
 /protobuffs/*.d.ts
+/metadata/types/*.d.ts

@@ -1,0 +1,242 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://joystream.org/schemas/VideoMetadata.schema.json",
+    "title": "VideoMetadata",
+    "description": "JSON schema describing Joystream's Video metadata",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "title",
+        "description",
+        "duration",
+        "thumbnailUrl",
+        "media",
+        "isPublic",
+        "isExplicit",
+        "license"
+    ],
+    "properties": {
+      "title": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "The title of the video"
+      },
+      "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "description": "The description of the Video"
+      },
+      "category": {
+        "type": ["integer", "null"],
+        "minimum": 1,
+        "description": "ID of the related content category"
+      },
+      "duration": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 31536000,
+        "description": "Video's duration in seconds"
+      },
+      "skippableIntroDuration": {
+        "type": [
+            "integer",
+            "null"
+        ],
+        "minimum": 0,
+        "maximum": 65535,
+        "description": "Video's skippable intro duration in seconds"
+      },
+      "thumbnailUrl": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 256,
+          "description": "Video thumbnail url (recommended ratio: 16:9)"
+      },
+      "language": {
+        "type": ["integer", "null"],
+        "minimum": 1,
+        "description": "ID of the content's language"
+      },
+      "media": {
+        "$ref": "#/definitions/VideoMedia"
+      },
+      "hasMarketing": {
+        "type": [
+            "boolean",
+            "null"
+        ],
+        "description": "Whether or not the Video contains marketing content"
+      },
+      "publishedBeforeJoystream": {
+          "type": [
+              "integer",
+              "null"
+          ],
+          "minimum": -2147483648,
+          "maximum": 2147483647,
+          "description": "If the Video was published on other platform before beeing published on Joystream - the timestamp of the original publication date"
+      },
+      "isPublic": {
+        "type": "boolean",
+        "description": "Whether the Video is supposed to be publically displayed"
+      },
+      "isExplicit": {
+        "type": "boolean",
+        "description": "Whether or not the Video contains explicit material."
+      },
+      "license": {
+        "$ref": "#/definitions/License"
+      }
+    },
+    "definitions": {
+      "UserDefinedLicense": {
+        "type": "object",
+        "description": "User-defined license",
+        "required": [ "content" ],
+        "properties": {
+          "content": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 4096,
+            "description": "Custom license content"
+          }
+        }
+      },
+      "KnownLicense": {
+        "type": "object",
+        "description": "Known license reference",
+        "required": [ "knownLicenseId" ],
+        "properties": {
+          "knownLicenseId": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "ID of existing KnownLicense to reference"
+          },
+          "attribution": {
+            "type": ["string", "null"],
+            "minLength": 3,
+            "maxLength": 512,
+            "description": "License attribution (if required)"
+          }
+        }
+      },
+      "License": {
+        "description": "License metadata assigned to a specific content",
+        "type": "object",
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": ["userDefinedLicense"],
+            "properties": {
+              "userDefinedLicense": { "$ref": "#/definitions/UserDefinedLicense" }
+            }
+          },
+          {
+            "required": ["knownLicense"],
+            "properties": {
+              "knownLicense": { "$ref": "#/definitions/KnownLicense" }
+            }
+          }
+        ]
+      },
+      "JoystreamMediaLocation": {
+        "type": "object",
+        "description": "Joystream media location",
+        "required": ["dataObjectId"],
+        "additionalProperties": false,
+        "properties": {
+          "dataObjectId": {
+            "type": "string",
+            "minLength": 48,
+            "maxLength": 48,
+            "description": "Id of the data object in the Joystream runtime dataDirectory module"
+          }
+        }
+      },
+      "HttpMediaLocation": {
+        "type": "object",
+        "description": "Http media location",
+        "required": ["url"],
+        "additionalProperties": false,
+        "properties": {
+          "url": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 256,
+            "description": "The http url pointing to the media"
+          },
+          "port": {
+            "type": [
+                "integer",
+                "null"
+            ],
+            "minimum": 0,
+            "maximum": 65535,
+            "description": "The port to use when connecting to the http url (defaults to 80)"
+          }
+        }
+      },
+      "MediaLocation": {
+        "description": "Media location metadata assigned to a content, describing how the associated media can be accessed",
+        "type": "object",
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [ "joystreamMediaLocation" ],
+            "properties": {
+              "joystreamMediaLocation": { "$ref": "#/definitions/JoystreamMediaLocation" }
+            }
+          },
+          {
+            "required": [ "httpMediaLocation" ],
+            "properties": {
+              "httpMediaLocation": { "$ref": "#/definitions/HttpMediaLocation" }
+            }
+          }
+        ]
+      },
+      "VideoMedia": {
+        "description": "An object describing video media metadata properties like width, height, encoding and location",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+            "encoding",
+            "pixelWidth",
+            "pixelHeight",
+            "location"
+        ],
+        "properties": {
+            "encoding": {
+              "type": ["integer", "null"],
+              "minimum": 1,
+              "description": "ID of the related media encoding"
+            },
+            "pixelWidth": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 65535,
+                "description": "Video media width in pixels"
+            },
+            "pixelHeight": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 65535,
+                "description": "Video media height in pixels"
+            },
+            "size": {
+                "type": [
+                    "integer",
+                    "null"
+                ],
+                "minimum": 1,
+                "description": "Video media size in bytes"
+            },
+            "location": {
+              "$ref": "#/definitions/MediaLocation"
+            }
+        }
+      }
+    }
+}

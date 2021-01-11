@@ -44,12 +44,12 @@
             "type": "boolean",
             "description": "Flag signaling whether the channel should be publically listed."
         },
-        "language": {
+        "languageId": {
           "type": ["integer", "null"],
           "minimum": 1,
           "description": "ID of the primary langauge of channel's content"
         },
-        "category": {
+        "categoryId": {
           "type": ["integer", "null"],
           "minimum": 1,
           "description": "ID of the primary category of channel's content"
