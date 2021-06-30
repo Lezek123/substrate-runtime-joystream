@@ -23,6 +23,7 @@ import electCouncil from '../flows/council/elect'
 import runtimeUpgradeProposal from '../flows/proposals/runtimeUpgradeProposal'
 import exactExecutionBlock from '../flows/proposals/exactExecutionBlock'
 import expireProposal from '../flows/proposals/expireProposal'
+import proposalsDiscussion from '../flows/proposalsDiscussion'
 import { scenario } from '../Scenario'
 
 scenario(async ({ job, env }) => {
@@ -49,12 +50,13 @@ scenario(async ({ job, env }) => {
   job('managing staking accounts', managingStakingAccounts).after(membershipSystemJob)
 
   // Proposals:
-  const proposalsJob = job('proposals', [
+  const proposalsJob = job('proposals & proposal discussion', [
     proposals,
     cancellingProposals,
     vetoProposal,
     exactExecutionBlock,
     expireProposal,
+    proposalsDiscussion,
   ]).requires(membershipSystemJob)
 
   // Working groups

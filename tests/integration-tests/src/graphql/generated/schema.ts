@@ -9951,9 +9951,6 @@ export type Query = {
   proposalDiscussionPosts: Array<ProposalDiscussionPost>
   proposalDiscussionPostByUniqueInput?: Maybe<ProposalDiscussionPost>
   proposalDiscussionPostsConnection: ProposalDiscussionPostConnection
-  proposalDiscussionThreadCreatedEvents: Array<ProposalDiscussionThreadCreatedEvent>
-  proposalDiscussionThreadCreatedEventByUniqueInput?: Maybe<ProposalDiscussionThreadCreatedEvent>
-  proposalDiscussionThreadCreatedEventsConnection: ProposalDiscussionThreadCreatedEventConnection
   proposalDiscussionThreadModeChangedEvents: Array<ProposalDiscussionThreadModeChangedEvent>
   proposalDiscussionThreadModeChangedEventByUniqueInput?: Maybe<ProposalDiscussionThreadModeChangedEvent>
   proposalDiscussionThreadModeChangedEventsConnection: ProposalDiscussionThreadModeChangedEventConnection

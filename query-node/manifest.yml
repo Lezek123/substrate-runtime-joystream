@@ -85,6 +85,7 @@ typegen:
     - members.updateProfile
     - members.updateAccounts
     - forum.createThread
+    - proposalsDiscussion.addPost
   outDir: ./mappings/generated/types
   customTypes:
     lib: '@joystream/types/augment/all/types'

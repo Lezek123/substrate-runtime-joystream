@@ -114,6 +114,17 @@ export type ProposalsEngineEventName =
   | 'Voted'
   | 'ProposalCancelled'
 
+export type ProposalsDiscussionEventName =
+  | 'ThreadCreated'
+  | 'PostCreated'
+  | 'PostUpdated'
+  | 'ThreadModeChanged'
+  | 'PostDeleted'
+
+export interface ProposalDiscussionPostCreatedEventDetails extends EventDetails {
+  postId: PostId
+}
+
 export type ProposalType = keyof typeof ProposalDetails.typeDefinitions
 export type ProposalDetailsJsonByType<T extends ProposalType = ProposalType> = CreateInterface<
   InstanceType<ProposalDetails['typeDefinitions'][T]>
