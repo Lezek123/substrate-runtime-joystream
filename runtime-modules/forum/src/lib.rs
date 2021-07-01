@@ -86,7 +86,10 @@ pub trait WeightInfo {
 }
 
 pub trait Trait:
-    frame_system::Trait + pallet_timestamp::Trait + common::membership::Trait + balances::Trait
+    frame_system::Trait
+    + pallet_timestamp::Trait
+    + common::membership::MembershipTypes
+    + balances::Trait
 {
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
 

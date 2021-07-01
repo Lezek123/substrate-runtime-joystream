@@ -97,7 +97,10 @@ pub trait WeightInfo {
 }
 
 pub trait Trait:
-    frame_system::Trait + balances::Trait + pallet_timestamp::Trait + common::membership::Trait
+    frame_system::Trait
+    + balances::Trait
+    + pallet_timestamp::Trait
+    + common::membership::MembershipTypes
 {
     /// Membership module event type.
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
@@ -324,7 +327,7 @@ decl_storage! {
                     &member.controller_account,
                     handle_hash,
                     Zero::zero(),
-                ).expect("Importing Member Failed");
+                );
 
                 // ensure imported member id matches assigned id
                 assert_eq!(member_id, member.member_id, "Import Member Failed: MemberId Incorrect");
@@ -335,17 +338,17 @@ decl_storage! {
 
 decl_event! {
     pub enum Event<T> where
-      <T as common::membership::Trait>::MemberId,
+      <T as common::membership::MembershipTypes>::MemberId,
       Balance = BalanceOf<T>,
       <T as frame_system::Trait>::AccountId,
       BuyMembershipParameters = BuyMembershipParameters<
           <T as frame_system::Trait>::AccountId,
-          <T as common::membership::Trait>::MemberId,
+          <T as common::membership::MembershipTypes>::MemberId,
         >,
-      <T as common::membership::Trait>::ActorId,
+      <T as common::membership::MembershipTypes>::ActorId,
       InviteMembershipParameters = InviteMembershipParameters<
           <T as frame_system::Trait>::AccountId,
-          <T as common::membership::Trait>::MemberId,
+          <T as common::membership::MembershipTypes>::MemberId,
         >,
     {
         MemberInvited(MemberId, InviteMembershipParameters),
@@ -434,7 +437,7 @@ decl_module! {
                 &params.controller_account,
                 handle_hash,
                 Self::initial_invitation_count(),
-            )?;
+            );
 
             // Collect membership fee (just burn it).
             let _ = balances::Module::<T>::slash(&who, fee);
@@ -725,7 +728,7 @@ decl_module! {
                 &params.controller_account,
                 handle_hash,
                 Zero::zero(),
-            )?;
+            );
 
             // Save the updated profile.
             <MembershipById<T>>::mutate(&member_id, |membership| {
@@ -1069,7 +1072,7 @@ impl<T: Trait> Module<T> {
         controller_account: &T::AccountId,
         handle_hash: Vec<u8>,
         allowed_invites: u32,
-    ) -> Result<T::MemberId, Error<T>> {
+    ) -> T::MemberId {
         let new_member_id = Self::members_created();
 
         let membership: Membership<T> = MembershipObject {
@@ -1084,7 +1087,8 @@ impl<T: Trait> Module<T> {
         <MemberIdByHandleHash<T>>::insert(handle_hash, new_member_id);
 
         <NextMemberId<T>>::put(new_member_id + One::one());
-        Ok(new_member_id)
+
+        new_member_id
     }
 
     // Ensure origin corresponds to the controller account of the member.

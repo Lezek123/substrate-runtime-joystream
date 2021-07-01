@@ -1,6 +1,6 @@
 //! # Proposals engine module
 //! Proposals `engine` module for the Joystream platform.
-//! The main component of the proposals system. Provides methods and extrinsics to create and
+//! The main component of the proposals frame_system. Provides methods and extrinsics to create and
 //! vote for proposals, inspired by Parity **Democracy module**.
 //!
 //! ## Overview
@@ -74,7 +74,7 @@
 //! use codec::Encode;
 //! use pallet_proposals_engine::{self as engine, ProposalParameters, ProposalCreationParameters};
 //!
-//! pub trait Trait: engine::Trait + common::membership::Trait {}
+//! pub trait Trait: engine::Trait + common::membership::MembershipTypes {}
 //!
 //! decl_module! {
 //!     pub struct Module<T: Trait> for enum Call where origin: T::Origin {
@@ -175,7 +175,10 @@ type WeightInfoEngine<T> = <T as Trait>::WeightInfo;
 
 /// Proposals engine trait.
 pub trait Trait:
-    frame_system::Trait + pallet_timestamp::Trait + common::membership::Trait + balances::Trait
+    frame_system::Trait
+    + pallet_timestamp::Trait
+    + common::membership::MembershipTypes
+    + balances::Trait
 {
     /// Engine event type.
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
@@ -973,7 +976,6 @@ impl<T: Trait> Module<T> {
         <Proposals<T>>::remove(proposal_id);
         <DispatchableCallCode<T>>::remove(proposal_id);
         <VoteExistsByProposalByVoter<T>>::remove_prefix(&proposal_id);
-
         Self::decrease_active_proposal_counter();
 
         T::ProposalObserver::proposal_removed(proposal_id);

@@ -17,6 +17,8 @@ jobs:
     - name: checks
       run: |
         yarn install --frozen-lockfile
+        yarn workspace @joystream/types build
+        yarn workspace @joystream/metadata-protobuf build
         yarn workspace integration-tests checks --quiet
 
   network_build_osx:
@@ -34,4 +36,6 @@ jobs:
     - name: checks
       run: |
         yarn install --frozen-lockfile --network-timeout 120000
+        yarn workspace @joystream/types build
+        yarn workspace @joystream/metadata-protobuf build
         yarn workspace integration-tests checks --quiet
