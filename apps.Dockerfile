@@ -12,7 +12,10 @@ ARG TYPEGEN_WS_URI
 # to ensure dev dependencies are installed.
 RUN yarn --frozen-lockfile
 
-RUN yarn build:packages
+RUN yarn workspace @joystream/types build
+RUN yarn workspace @joystream/metadata-protobuf build
+RUN yarn workspace query-node-root build
+RUN yarn workspace storage-node build
 
 # Second stage to reduce image size, enable it when
 # all packages have correctly identified what is a devDependency and what is not.
