@@ -11,7 +11,7 @@ import { Sender, LogLevel } from './sender'
 import { Utils } from './utils'
 import { types } from '@joystream/types'
 
-import { v4 as uuid } from 'uuid'
+import { mnemonicGenerate } from '@polkadot/util-crypto'
 import { extendDebug } from './Debugger'
 import { DispatchError } from '@polkadot/types/interfaces/system'
 import {
@@ -175,18 +175,21 @@ export class Api {
   }
 
   // Create new keys and store them in the shared keyring
-  public async createKeyPairs(n: number, withExistentialDeposit = true): Promise<KeyringPair[]> {
+  public async createKeyPairs(n: number, withExistentialDeposit = true, name?: string): Promise<KeyringPair[]> {
+    const debug = name ? extendDebug('keypairs').extend(name) : extendDebug('keypairs')
     const nKeyPairs: KeyringPair[] = []
+    const mnemonics: string[] = []
     for (let i = 0; i < n; i++) {
-      // What are risks of generating duplicate keys this way?
-      // Why not use a deterministic /TestKeys/N and increment N
-      nKeyPairs.push(this.keyring.addFromUri(i + uuid().substring(0, 8)))
+      const mnemonic = mnemonicGenerate()
+      mnemonics.push(mnemonic)
+      nKeyPairs.push(this.keyring.addFromUri(mnemonic))
     }
     if (withExistentialDeposit) {
       await Promise.all(
         nKeyPairs.map(({ address }) => this.treasuryTransferBalance(address, this.existentialDeposit()))
       )
     }
+    debug(`Created ${n} keypairs:`, mnemonics)
     return nKeyPairs
   }
 

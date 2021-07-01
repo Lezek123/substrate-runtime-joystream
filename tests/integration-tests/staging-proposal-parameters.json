@@ -1,0 +1,104 @@
+{
+  "set_max_validator_count_proposal": {
+      "voting_period": 201,
+      "grace_period": 0
+  },
+  "runtime_upgrade_proposal": {
+    "voting_period": 202,
+    "grace_period": 200,
+    "constitutionality": 2
+  },
+  "signal_proposal": {
+    "voting_period": 203,
+    "grace_period": 0
+  },
+  "funding_request_proposal": {
+      "voting_period": 204,
+      "grace_period": 100
+  },
+  "create_working_group_lead_opening_proposal": {
+      "voting_period": 205,
+      "grace_period": 0
+  },
+  "fill_working_group_lead_opening_proposal": {
+      "voting_period": 206,
+      "grace_period": 0
+  },
+  "update_working_group_budget_proposal": {
+      "voting_period": 207,
+      "grace_period": 0
+  },
+  "decrease_working_group_lead_stake_proposal": {
+      "voting_period": 208,
+      "grace_period": 0
+  },
+  "slash_working_group_lead_proposal": {
+      "voting_period": 209,
+      "grace_period": 0
+  },
+  "set_working_group_lead_reward_proposal": {
+      "voting_period": 210,
+      "grace_period": 0
+  },
+  "terminate_working_group_lead_proposal": {
+      "voting_period": 211,
+      "grace_period": 0
+  },
+  "amend_constitution_proposal": {
+      "voting_period": 212,
+      "grace_period": 200,
+      "constitutionality": 2
+  },
+  "cancel_working_group_lead_opening_proposal": {
+      "voting_period": 213,
+      "grace_period": 0
+  },
+  "set_membership_price_proposal": {
+      "voting_period": 214,
+      "grace_period": 100
+  },
+  "set_council_budget_increment_proposal": {
+      "voting_period": 215,
+      "grace_period": 100
+  },
+  "set_councilor_reward_proposal": {
+      "voting_period": 216,
+      "grace_period": 200
+  },
+  "set_initial_invitation_balance_proposal": {
+      "voting_period": 217,
+      "grace_period": 100
+  },
+  "set_membership_lead_invitation_quota_proposal": {
+      "voting_period": 218,
+      "grace_period": 100
+  },
+  "set_referral_cut_proposal": {
+      "voting_period": 219,
+      "grace_period": 100
+  },
+  "set_invitation_count_proposal": {
+      "voting_period": 220,
+      "grace_period": 100
+  },
+  "create_blog_post_proposal": {
+      "voting_period": 221,
+      "grace_period": 100
+  },
+  "edit_blog_post_proposal": {
+      "voting_period": 222,
+      "grace_period": 100
+  },
+  "lock_blog_post_proposal": {
+      "voting_period": 223,
+      "grace_period": 100
+  },
+  "unlock_blog_post_proposal": {
+      "voting_period": 224,
+      "grace_period": 100
+  },
+  "veto_proposal_proposal": {
+      "voting_period": 225,
+      "grace_period": 0
+  }
+}

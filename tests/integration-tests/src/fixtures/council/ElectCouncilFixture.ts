@@ -12,7 +12,9 @@ export class ElectCouncilFixture extends BaseQueryNodeFixture {
     const numberOfVoters = numberOfCandidates
 
     // Prepare memberships
-    const candidatesMemberAccounts = (await this.api.createKeyPairs(numberOfCandidates)).map((kp) => kp.address)
+    const candidatesMemberAccounts = (
+      await this.api.createKeyPairs(numberOfCandidates, true, 'Council candidate members')
+    ).map((kp) => kp.address)
     const buyMembershipsFixture = new BuyMembershipHappyCaseFixture(api, query, candidatesMemberAccounts)
     await new FixtureRunner(buyMembershipsFixture).run()
     const candidatesMemberIds = buyMembershipsFixture.getCreatedMembers()
@@ -21,7 +23,9 @@ export class ElectCouncilFixture extends BaseQueryNodeFixture {
     const councilCandidateStake = api.consts.council.minCandidateStake
     const voteStake = api.consts.referendum.minimumStake
 
-    const candidatesStakingAccounts = (await this.api.createKeyPairs(numberOfCandidates)).map((kp) => kp.address)
+    const candidatesStakingAccounts = (
+      await this.api.createKeyPairs(numberOfCandidates, true, 'Council candidate staking')
+    ).map((kp) => kp.address)
     const addStakingAccountsFixture = new AddStakingAccountsHappyCaseFixture(
       api,
       query,
@@ -33,7 +37,9 @@ export class ElectCouncilFixture extends BaseQueryNodeFixture {
     )
     await new FixtureRunner(addStakingAccountsFixture).run()
 
-    const votersStakingAccounts = (await this.api.createKeyPairs(numberOfVoters)).map((kp) => kp.address)
+    const votersStakingAccounts = (await this.api.createKeyPairs(numberOfVoters, true, 'Council voters')).map(
+      (kp) => kp.address
+    )
     await api.treasuryTransferBalanceToAccounts(votersStakingAccounts, voteStake.addn(MINIMUM_STAKING_ACCOUNT_BALANCE))
 
     // Announcing stage
