@@ -1083,7 +1083,7 @@ export type ProposalDiscussionPostStatusFieldsFragment =
 export type ProposalDiscussionThreadFieldsFragment = {
   id: string
   proposal: { id: string }
-  posts: Array<{ id: string }>
+  discussionPosts: Array<{ id: string }>
   mode:
     | ProposalDiscussionThreadModeFields_ProposalDiscussionThreadModeOpen_Fragment
     | ProposalDiscussionThreadModeFields_ProposalDiscussionThreadModeClosed_Fragment
@@ -2835,7 +2835,7 @@ export const ProposalDiscussionThreadFields = gql`
     proposal {
       id
     }
-    posts {
+    discussionPosts {
       id
     }
     mode {

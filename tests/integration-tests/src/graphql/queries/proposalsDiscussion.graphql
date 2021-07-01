@@ -28,7 +28,7 @@ fragment ProposalDiscussionThreadFields on ProposalDiscussionThread {
   proposal {
     id
   }
-  posts {
+  discussionPosts {
     id
   }
   mode {
