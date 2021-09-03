@@ -10,7 +10,8 @@
     "setup": "./setup.sh",
     "start": "./start.sh",
     "cargo-checks": "devops/git-hooks/pre-commit && devops/git-hooks/pre-push",
-    "cargo-build": "scripts/cargo-build.sh"
+    "cargo-build": "scripts/cargo-build.sh",
+    "postinstall": "./hydra-fix.sh"
   },
   "workspaces": [
     "tests/integration-tests",
