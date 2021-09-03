@@ -25,9 +25,8 @@ type ProposalDiscussionThread @entity {
   "The proposal the thread is related to"
   proposal: Proposal!
 
-  # FIXME: Cannot be just "posts" because of https://github.com/Joystream/hydra/issues/443
   "List of posts in the the thread"
-  discussionPosts: [ProposalDiscussionPost!] @derivedFrom(field: "thread")
+  posts: [ProposalDiscussionPost!] @derivedFrom(field: "discussionThread")
 
   "Current thread mode"
   mode: ProposalDiscussionThreadMode!
@@ -63,7 +62,7 @@ type ProposalDiscussionPost @entity {
   id: ID!
 
   "Proposal discussion thread the post was created in"
-  thread: ProposalDiscussionThread!
+  discussionThread: ProposalDiscussionThread!
 
   "The author of the post"
   author: Membership!

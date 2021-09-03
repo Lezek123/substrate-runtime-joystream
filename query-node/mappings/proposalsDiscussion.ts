@@ -67,7 +67,7 @@ export async function proposalsDiscussion_PostCreated({ event, store }: EventCon
     status: editable.isTrue ? new ProposalDiscussionPostStatusActive() : new ProposalDiscussionPostStatusLocked(),
     text,
     repliesTo,
-    thread: new ProposalDiscussionThread({ id: threadId.toString() }),
+    discussionThread: new ProposalDiscussionThread({ id: threadId.toString() }),
   })
   await store.save<ProposalDiscussionPost>(post)
 

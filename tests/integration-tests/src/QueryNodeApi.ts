@@ -1,4 +1,4 @@
-import { ApolloClient, DocumentNode, NormalizedCacheObject } from '@apollo/client'
+import { ApolloClient, DocumentNode, NormalizedCacheObject } from '@apollo/client/core'
 import { MemberId, PostId, ThreadId } from '@joystream/types/common'
 import { extendDebug, Debugger } from './Debugger'
 import { ApplicationId, OpeningId, WorkerId } from '@joystream/types/working-group'
@@ -187,10 +187,10 @@ import {
   GetThreadDeletedEventsByEventIdsQuery,
   GetThreadDeletedEventsByEventIdsQueryVariables,
   GetThreadDeletedEventsByEventIds,
-  ForumThreadWithPostsFieldsFragment,
-  GetThreadsWithPostsByIdsQuery,
-  GetThreadsWithPostsByIdsQueryVariables,
-  GetThreadsWithPostsByIds,
+  ForumThreadWithInitialPostFragment,
+  GetThreadsWithInitialPostsByIds,
+  GetThreadsWithInitialPostsByIdsQuery,
+  GetThreadsWithInitialPostsByIdsQueryVariables,
   GetMembershipBoughtEventsByEventIdsQuery,
   GetMembershipBoughtEventsByEventIdsQueryVariables,
   GetMembershipBoughtEventsByEventIds,
@@ -226,10 +226,10 @@ import {
   GetPostAddedEventsByEventIdsQuery,
   GetPostAddedEventsByEventIdsQueryVariables,
   GetPostAddedEventsByEventIds,
-  ThreadTitleUpdatedEventFieldsFragment,
-  GetThreadTitleUpdatedEventsByEventIdsQuery,
-  GetThreadTitleUpdatedEventsByEventIdsQueryVariables,
-  GetThreadTitleUpdatedEventsByEventIds,
+  ThreadMetadataUpdatedEventFieldsFragment,
+  GetThreadMetadataUpdatedEventsByEventIds,
+  GetThreadMetadataUpdatedEventsByEventIdsQuery,
+  GetThreadMetadataUpdatedEventsByEventIdsQueryVariables,
   ThreadMovedEventFieldsFragment,
   GetThreadMovedEventsByEventIdsQuery,
   GetThreadMovedEventsByEventIdsQueryVariables,
@@ -858,20 +858,21 @@ export class QueryNodeApi {
     >(GetThreadCreatedEventsByEventIds, { eventIds }, 'threadCreatedEvents')
   }
 
-  public async getThreadTitleUpdatedEvents(events: EventDetails[]): Promise<ThreadTitleUpdatedEventFieldsFragment[]> {
+  public async getThreadMetadataUpdatedEvents(
+    events: EventDetails[]
+  ): Promise<ThreadMetadataUpdatedEventFieldsFragment[]> {
     const eventIds = events.map((e) => this.getQueryNodeEventId(e.blockNumber, e.indexInBlock))
     return this.multipleEntitiesQuery<
-      GetThreadTitleUpdatedEventsByEventIdsQuery,
-      GetThreadTitleUpdatedEventsByEventIdsQueryVariables
-    >(GetThreadTitleUpdatedEventsByEventIds, { eventIds }, 'threadTitleUpdatedEvents')
+      GetThreadMetadataUpdatedEventsByEventIdsQuery,
+      GetThreadMetadataUpdatedEventsByEventIdsQueryVariables
+    >(GetThreadMetadataUpdatedEventsByEventIds, { eventIds }, 'threadMetadataUpdatedEvents')
   }
 
-  public async getThreadsWithPostsByIds(ids: ThreadId[]): Promise<ForumThreadWithPostsFieldsFragment[]> {
-    return this.multipleEntitiesQuery<GetThreadsWithPostsByIdsQuery, GetThreadsWithPostsByIdsQueryVariables>(
-      GetThreadsWithPostsByIds,
-      { ids: ids.map((id) => id.toString()) },
-      'forumThreads'
-    )
+  public async getThreadsWithInitialPostsByIds(ids: ThreadId[]): Promise<ForumThreadWithInitialPostFragment[]> {
+    return this.multipleEntitiesQuery<
+      GetThreadsWithInitialPostsByIdsQuery,
+      GetThreadsWithInitialPostsByIdsQueryVariables
+    >(GetThreadsWithInitialPostsByIds, { ids: ids.map((id) => id.toString()) }, 'forumThreads')
   }
 
   public async getVoteOnPollEvents(events: EventDetails[]): Promise<VoteOnPollEventFieldsFragment[]> {

@@ -7,7 +7,7 @@ import {
   StoreContext,
 } from '@dzlzv/hydra-common'
 import { Bytes } from '@polkadot/types'
-import { WorkingGroup, WorkerId, ProposalId, ThreadId, ContentParameters } from '@joystream/types/augment/all'
+import { WorkingGroup, WorkerId, ThreadId, ContentParameters } from '@joystream/types/augment/all'
 import { Worker, Event, Network, DataObject, LiaisonJudgement, DataObjectOwner } from 'query-node/dist/model'
 import { BaseModel } from 'warthog'
 import { ContentParameters as Custom_ContentParameters } from '@joystream/types/storage'
@@ -203,9 +203,8 @@ export function extractSudoCallParameters<DataParams>(rawEvent: SubstrateEvent):
   return callArgs
 }
 
-// FIXME: See issues like: https://github.com/Joystream/joystream/issues/2457
+// FIXME:
 type MappingsMemoryCache = {
-  lastCreatedProposalId?: ProposalId
   lastCreatedProposalThreadId?: ThreadId
 }
 

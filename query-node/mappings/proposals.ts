@@ -315,28 +315,19 @@ async function parseProposalDetails(
   }
 }
 
-export async function proposalsEngine_ProposalCreated({ event }: EventContext & StoreContext): Promise<void> {
-  const [, proposalId] = new ProposalsEngine.ProposalCreatedEvent(event).params
-
-  // Cache the id
-  MemoryCache.lastCreatedProposalId = proposalId
-}
-
 export async function proposalsCodex_ProposalCreated({ store, event }: EventContext & StoreContext): Promise<void> {
-  const [generalProposalParameters, runtimeProposalDetails] = new ProposalsCodex.ProposalCreatedEvent(event).params
+  const [proposalId, generalProposalParameters, runtimeProposalDetails] = new ProposalsCodex.ProposalCreatedEvent(
+    event
+  ).params
   const eventTime = new Date(event.blockTimestamp)
   const proposalDetails = await parseProposalDetails(event, store, runtimeProposalDetails)
-
-  if (!MemoryCache.lastCreatedProposalId) {
-    throw new Error('Unexpected state: MemoryCache.lastCreatedProposalId is empty')
-  }
 
   if (!MemoryCache.lastCreatedProposalThreadId) {
     throw new Error('Unexpected state: MemoryCache.lastCreatedProposalThreadId is empty')
   }
 
   const proposal = new Proposal({
-    id: MemoryCache.lastCreatedProposalId.toString(),
+    id: proposalId.toString(),
     createdAt: eventTime,
     updatedAt: eventTime,
     details: proposalDetails,
@@ -347,6 +338,7 @@ export async function proposalsCodex_ProposalCreated({ store, event }: EventCont
     exactExecutionBlock: generalProposalParameters.exact_execution_block.unwrapOr(undefined)?.toNumber(),
     stakingAccount: generalProposalParameters.staking_account_id.toString(),
     status: new ProposalStatusDeciding(),
+    isFinalized: false,
     statusSetAtBlock: event.blockNumber,
     statusSetAtTime: eventTime,
   })
@@ -461,6 +453,7 @@ export async function proposalsEngine_ProposalDecisionMade({
       | ProposalStatusSlashed
       | ProposalStatusVetoed).proposalDecisionMadeEventId = proposalDecisionMadeEvent.id
     proposal.status = decisionStatus
+    proposal.isFinalized = true
     proposal.statusSetAtBlock = event.blockNumber
     proposal.statusSetAtTime = eventTime
     proposal.updatedAt = eventTime
@@ -493,6 +486,7 @@ export async function proposalsEngine_ProposalExecuted({ store, event }: EventCo
 
   newStatus.proposalExecutedEventId = proposalExecutedEvent.id
   proposal.status = newStatus
+  proposal.isFinalized = true
   proposal.statusSetAtBlock = event.blockNumber
   proposal.statusSetAtTime = eventTime
   proposal.updatedAt = eventTime
@@ -541,6 +535,7 @@ export async function proposalsEngine_ProposalCancelled({ store, event }: EventC
   await store.save<ProposalCancelledEvent>(proposalCancelledEvent)
 
   proposal.status = new ProposalStatusCancelled()
+  proposal.isFinalized = true
   proposal.status.cancelledInEventId = proposalCancelledEvent.id
   proposal.statusSetAtBlock = event.blockNumber
   proposal.statusSetAtTime = eventTime

@@ -3385,6 +3385,7 @@ export type ForumPost = BaseGraphQlObject & {
   deletedInEvent?: Maybe<PostDeletedEvent>
   deletedInEventId?: Maybe<Scalars['String']>
   forumpostrepliesTo?: Maybe<Array<ForumPost>>
+  forumthreadinitialPost?: Maybe<Array<ForumThread>>
   postaddedeventpost?: Maybe<Array<PostAddedEvent>>
   postmoderatedeventpost?: Maybe<Array<PostModeratedEvent>>
   postreactedeventpost?: Maybe<Array<PostReactedEvent>>
@@ -3589,6 +3590,9 @@ export type ForumPostWhereInput = {
   forumpostrepliesTo_none?: Maybe<ForumPostWhereInput>
   forumpostrepliesTo_some?: Maybe<ForumPostWhereInput>
   forumpostrepliesTo_every?: Maybe<ForumPostWhereInput>
+  forumthreadinitialPost_none?: Maybe<ForumThreadWhereInput>
+  forumthreadinitialPost_some?: Maybe<ForumThreadWhereInput>
+  forumthreadinitialPost_every?: Maybe<ForumThreadWhereInput>
   postaddedeventpost_none?: Maybe<PostAddedEventWhereInput>
   postaddedeventpost_some?: Maybe<PostAddedEventWhereInput>
   postaddedeventpost_every?: Maybe<PostAddedEventWhereInput>
@@ -3622,15 +3626,20 @@ export type ForumThread = BaseGraphQlObject & {
   /** Thread title */
   title: Scalars['String']
   posts: Array<ForumPost>
+  initialPost?: Maybe<ForumPost>
+  initialPostId?: Maybe<Scalars['String']>
+  /** Number of non-deleted posts in the thread */
+  visiblePostsCount: Scalars['Int']
   poll?: Maybe<ForumPoll>
   /** Whether the thread is sticky in the category */
   isSticky: Scalars['Boolean']
   createdInEvent: ThreadCreatedEvent
   /** Current thread status */
   status: ThreadStatus
-  titleUpdates: Array<ThreadTitleUpdatedEvent>
+  metadataUpdates: Array<ThreadMetadataUpdatedEvent>
   madeStickyInEvents: Array<CategoryStickyThreadUpdateEvent>
   movedInEvents: Array<ThreadMovedEvent>
+  tags: Array<ForumThreadTag>
   threaddeletedeventthread?: Maybe<Array<ThreadDeletedEvent>>
   threadmoderatedeventthread?: Maybe<Array<ThreadModeratedEvent>>
 }
@@ -3645,6 +3654,8 @@ export type ForumThreadCreateInput = {
   author: Scalars['ID']
   category: Scalars['ID']
   title: Scalars['String']
+  initialPost?: Maybe<Scalars['ID']>
+  visiblePostsCount: Scalars['Float']
   isSticky: Scalars['Boolean']
   status: Scalars['JSONObject']
 }
@@ -3667,14 +3678,106 @@ export enum ForumThreadOrderByInput {
   CategoryDesc = 'category_DESC',
   TitleAsc = 'title_ASC',
   TitleDesc = 'title_DESC',
+  InitialPostAsc = 'initialPost_ASC',
+  InitialPostDesc = 'initialPost_DESC',
+  VisiblePostsCountAsc = 'visiblePostsCount_ASC',
+  VisiblePostsCountDesc = 'visiblePostsCount_DESC',
   IsStickyAsc = 'isSticky_ASC',
   IsStickyDesc = 'isSticky_DESC',
+}
+
+export type ForumThreadTag = BaseGraphQlObject & {
+  id: Scalars['ID']
+  createdAt: Scalars['DateTime']
+  createdById: Scalars['String']
+  updatedAt?: Maybe<Scalars['DateTime']>
+  updatedById?: Maybe<Scalars['String']>
+  deletedAt?: Maybe<Scalars['DateTime']>
+  deletedById?: Maybe<Scalars['String']>
+  version: Scalars['Int']
+  threads: Array<ForumThread>
+  /** Number of non-removed threads currently assigned to the tag */
+  visibleThreadsCount: Scalars['Int']
+}
+
+export type ForumThreadTagConnection = {
+  totalCount: Scalars['Int']
+  edges: Array<ForumThreadTagEdge>
+  pageInfo: PageInfo
+}
+
+export type ForumThreadTagCreateInput = {
+  visibleThreadsCount: Scalars['Float']
+}
+
+export type ForumThreadTagEdge = {
+  node: ForumThreadTag
+  cursor: Scalars['String']
+}
+
+export enum ForumThreadTagOrderByInput {
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  VisibleThreadsCountAsc = 'visibleThreadsCount_ASC',
+  VisibleThreadsCountDesc = 'visibleThreadsCount_DESC',
+}
+
+export type ForumThreadTagUpdateInput = {
+  visibleThreadsCount?: Maybe<Scalars['Float']>
+}
+
+export type ForumThreadTagWhereInput = {
+  id_eq?: Maybe<Scalars['ID']>
+  id_in?: Maybe<Array<Scalars['ID']>>
+  createdAt_eq?: Maybe<Scalars['DateTime']>
+  createdAt_lt?: Maybe<Scalars['DateTime']>
+  createdAt_lte?: Maybe<Scalars['DateTime']>
+  createdAt_gt?: Maybe<Scalars['DateTime']>
+  createdAt_gte?: Maybe<Scalars['DateTime']>
+  createdById_eq?: Maybe<Scalars['ID']>
+  createdById_in?: Maybe<Array<Scalars['ID']>>
+  updatedAt_eq?: Maybe<Scalars['DateTime']>
+  updatedAt_lt?: Maybe<Scalars['DateTime']>
+  updatedAt_lte?: Maybe<Scalars['DateTime']>
+  updatedAt_gt?: Maybe<Scalars['DateTime']>
+  updatedAt_gte?: Maybe<Scalars['DateTime']>
+  updatedById_eq?: Maybe<Scalars['ID']>
+  updatedById_in?: Maybe<Array<Scalars['ID']>>
+  deletedAt_all?: Maybe<Scalars['Boolean']>
+  deletedAt_eq?: Maybe<Scalars['DateTime']>
+  deletedAt_lt?: Maybe<Scalars['DateTime']>
+  deletedAt_lte?: Maybe<Scalars['DateTime']>
+  deletedAt_gt?: Maybe<Scalars['DateTime']>
+  deletedAt_gte?: Maybe<Scalars['DateTime']>
+  deletedById_eq?: Maybe<Scalars['ID']>
+  deletedById_in?: Maybe<Array<Scalars['ID']>>
+  visibleThreadsCount_eq?: Maybe<Scalars['Int']>
+  visibleThreadsCount_gt?: Maybe<Scalars['Int']>
+  visibleThreadsCount_gte?: Maybe<Scalars['Int']>
+  visibleThreadsCount_lt?: Maybe<Scalars['Int']>
+  visibleThreadsCount_lte?: Maybe<Scalars['Int']>
+  visibleThreadsCount_in?: Maybe<Array<Scalars['Int']>>
+  threads_none?: Maybe<ForumThreadWhereInput>
+  threads_some?: Maybe<ForumThreadWhereInput>
+  threads_every?: Maybe<ForumThreadWhereInput>
+  AND?: Maybe<Array<ForumThreadTagWhereInput>>
+  OR?: Maybe<Array<ForumThreadTagWhereInput>>
+}
+
+export type ForumThreadTagWhereUniqueInput = {
+  id: Scalars['ID']
 }
 
 export type ForumThreadUpdateInput = {
   author?: Maybe<Scalars['ID']>
   category?: Maybe<Scalars['ID']>
   title?: Maybe<Scalars['String']>
+  initialPost?: Maybe<Scalars['ID']>
+  visiblePostsCount?: Maybe<Scalars['Float']>
   isSticky?: Maybe<Scalars['Boolean']>
   status?: Maybe<Scalars['JSONObject']>
 }
@@ -3713,6 +3816,14 @@ export type ForumThreadWhereInput = {
   title_startsWith?: Maybe<Scalars['String']>
   title_endsWith?: Maybe<Scalars['String']>
   title_in?: Maybe<Array<Scalars['String']>>
+  initialPost_eq?: Maybe<Scalars['ID']>
+  initialPost_in?: Maybe<Array<Scalars['ID']>>
+  visiblePostsCount_eq?: Maybe<Scalars['Int']>
+  visiblePostsCount_gt?: Maybe<Scalars['Int']>
+  visiblePostsCount_gte?: Maybe<Scalars['Int']>
+  visiblePostsCount_lt?: Maybe<Scalars['Int']>
+  visiblePostsCount_lte?: Maybe<Scalars['Int']>
+  visiblePostsCount_in?: Maybe<Array<Scalars['Int']>>
   isSticky_eq?: Maybe<Scalars['Boolean']>
   isSticky_in?: Maybe<Array<Scalars['Boolean']>>
   status_json?: Maybe<Scalars['JSONObject']>
@@ -3721,17 +3832,21 @@ export type ForumThreadWhereInput = {
   posts_none?: Maybe<ForumPostWhereInput>
   posts_some?: Maybe<ForumPostWhereInput>
   posts_every?: Maybe<ForumPostWhereInput>
+  initialPost?: Maybe<ForumPostWhereInput>
   poll?: Maybe<ForumPollWhereInput>
   createdInEvent?: Maybe<ThreadCreatedEventWhereInput>
-  titleUpdates_none?: Maybe<ThreadTitleUpdatedEventWhereInput>
-  titleUpdates_some?: Maybe<ThreadTitleUpdatedEventWhereInput>
-  titleUpdates_every?: Maybe<ThreadTitleUpdatedEventWhereInput>
+  metadataUpdates_none?: Maybe<ThreadMetadataUpdatedEventWhereInput>
+  metadataUpdates_some?: Maybe<ThreadMetadataUpdatedEventWhereInput>
+  metadataUpdates_every?: Maybe<ThreadMetadataUpdatedEventWhereInput>
   madeStickyInEvents_none?: Maybe<CategoryStickyThreadUpdateEventWhereInput>
   madeStickyInEvents_some?: Maybe<CategoryStickyThreadUpdateEventWhereInput>
   madeStickyInEvents_every?: Maybe<CategoryStickyThreadUpdateEventWhereInput>
   movedInEvents_none?: Maybe<ThreadMovedEventWhereInput>
   movedInEvents_some?: Maybe<ThreadMovedEventWhereInput>
   movedInEvents_every?: Maybe<ThreadMovedEventWhereInput>
+  tags_none?: Maybe<ForumThreadTagWhereInput>
+  tags_some?: Maybe<ForumThreadTagWhereInput>
+  tags_every?: Maybe<ForumThreadTagWhereInput>
   threaddeletedeventthread_none?: Maybe<ThreadDeletedEventWhereInput>
   threaddeletedeventthread_some?: Maybe<ThreadDeletedEventWhereInput>
   threaddeletedeventthread_every?: Maybe<ThreadDeletedEventWhereInput>
@@ -8177,6 +8292,8 @@ export type Proposal = BaseGraphQlObject & {
   votes: Array<ProposalVotedEvent>
   /** Current proposal status */
   status: ProposalStatus
+  /** If true then the proposal status is final and will not change form this point */
+  isFinalized?: Maybe<Scalars['Boolean']>
   /** Number of the block the current status was set at */
   statusSetAtBlock: Scalars['Int']
   /** Time the current status was set at (based on block timestamp) */
@@ -8451,6 +8568,7 @@ export type ProposalCreateInput = {
   exactExecutionBlock?: Maybe<Scalars['Float']>
   councilApprovals: Scalars['Float']
   status: Scalars['JSONObject']
+  isFinalized?: Maybe<Scalars['Boolean']>
   statusSetAtBlock: Scalars['Float']
   statusSetAtTime: Scalars['DateTime']
 }
@@ -8631,8 +8749,8 @@ export type ProposalDiscussionPost = BaseGraphQlObject & {
   deletedAt?: Maybe<Scalars['DateTime']>
   deletedById?: Maybe<Scalars['String']>
   version: Scalars['Int']
-  thread: ProposalDiscussionThread
-  threadId: Scalars['String']
+  discussionThread: ProposalDiscussionThread
+  discussionThreadId: Scalars['String']
   author: Membership
   authorId: Scalars['String']
   /** Current post status */
@@ -8790,7 +8908,7 @@ export type ProposalDiscussionPostCreatedEventWhereUniqueInput = {
 }
 
 export type ProposalDiscussionPostCreateInput = {
-  thread: Scalars['ID']
+  discussionThread: Scalars['ID']
   author: Scalars['ID']
   status: Scalars['JSONObject']
   text: Scalars['String']
@@ -8943,8 +9061,8 @@ export enum ProposalDiscussionPostOrderByInput {
   UpdatedAtDesc = 'updatedAt_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
-  ThreadAsc = 'thread_ASC',
-  ThreadDesc = 'thread_DESC',
+  DiscussionThreadAsc = 'discussionThread_ASC',
+  DiscussionThreadDesc = 'discussionThread_DESC',
   AuthorAsc = 'author_ASC',
   AuthorDesc = 'author_DESC',
   TextAsc = 'text_ASC',
@@ -9156,7 +9274,7 @@ export type ProposalDiscussionPostUpdatedEventWhereUniqueInput = {
 }
 
 export type ProposalDiscussionPostUpdateInput = {
-  thread?: Maybe<Scalars['ID']>
+  discussionThread?: Maybe<Scalars['ID']>
   author?: Maybe<Scalars['ID']>
   status?: Maybe<Scalars['JSONObject']>
   text?: Maybe<Scalars['String']>
@@ -9188,8 +9306,8 @@ export type ProposalDiscussionPostWhereInput = {
   deletedAt_gte?: Maybe<Scalars['DateTime']>
   deletedById_eq?: Maybe<Scalars['ID']>
   deletedById_in?: Maybe<Array<Scalars['ID']>>
-  thread_eq?: Maybe<Scalars['ID']>
-  thread_in?: Maybe<Array<Scalars['ID']>>
+  discussionThread_eq?: Maybe<Scalars['ID']>
+  discussionThread_in?: Maybe<Array<Scalars['ID']>>
   author_eq?: Maybe<Scalars['ID']>
   author_in?: Maybe<Array<Scalars['ID']>>
   status_json?: Maybe<Scalars['JSONObject']>
@@ -9200,7 +9318,7 @@ export type ProposalDiscussionPostWhereInput = {
   text_in?: Maybe<Array<Scalars['String']>>
   repliesTo_eq?: Maybe<Scalars['ID']>
   repliesTo_in?: Maybe<Array<Scalars['ID']>>
-  thread?: Maybe<ProposalDiscussionThreadWhereInput>
+  discussionThread?: Maybe<ProposalDiscussionThreadWhereInput>
   author?: Maybe<MembershipWhereInput>
   repliesTo?: Maybe<ProposalDiscussionPostWhereInput>
   updates_none?: Maybe<ProposalDiscussionPostUpdatedEventWhereInput>
@@ -9232,7 +9350,7 @@ export type ProposalDiscussionThread = BaseGraphQlObject & {
   version: Scalars['Int']
   proposal: Proposal
   proposalId: Scalars['String']
-  discussionPosts: Array<ProposalDiscussionPost>
+  posts: Array<ProposalDiscussionPost>
   /** Current thread mode */
   mode: ProposalDiscussionThreadMode
   modeChanges: Array<ProposalDiscussionThreadModeChangedEvent>
@@ -9496,9 +9614,9 @@ export type ProposalDiscussionThreadWhereInput = {
   proposal_in?: Maybe<Array<Scalars['ID']>>
   mode_json?: Maybe<Scalars['JSONObject']>
   proposal?: Maybe<ProposalWhereInput>
-  discussionPosts_none?: Maybe<ProposalDiscussionPostWhereInput>
-  discussionPosts_some?: Maybe<ProposalDiscussionPostWhereInput>
-  discussionPosts_every?: Maybe<ProposalDiscussionPostWhereInput>
+  posts_none?: Maybe<ProposalDiscussionPostWhereInput>
+  posts_some?: Maybe<ProposalDiscussionPostWhereInput>
+  posts_every?: Maybe<ProposalDiscussionPostWhereInput>
   modeChanges_none?: Maybe<ProposalDiscussionThreadModeChangedEventWhereInput>
   modeChanges_some?: Maybe<ProposalDiscussionThreadModeChangedEventWhereInput>
   modeChanges_every?: Maybe<ProposalDiscussionThreadModeChangedEventWhereInput>
@@ -9753,6 +9871,8 @@ export enum ProposalOrderByInput {
   ExactExecutionBlockDesc = 'exactExecutionBlock_DESC',
   CouncilApprovalsAsc = 'councilApprovals_ASC',
   CouncilApprovalsDesc = 'councilApprovals_DESC',
+  IsFinalizedAsc = 'isFinalized_ASC',
+  IsFinalizedDesc = 'isFinalized_DESC',
   StatusSetAtBlockAsc = 'statusSetAtBlock_ASC',
   StatusSetAtBlockDesc = 'statusSetAtBlock_DESC',
   StatusSetAtTimeAsc = 'statusSetAtTime_ASC',
@@ -10032,6 +10152,7 @@ export type ProposalUpdateInput = {
   exactExecutionBlock?: Maybe<Scalars['Float']>
   councilApprovals?: Maybe<Scalars['Float']>
   status?: Maybe<Scalars['JSONObject']>
+  isFinalized?: Maybe<Scalars['Boolean']>
   statusSetAtBlock?: Maybe<Scalars['Float']>
   statusSetAtTime?: Maybe<Scalars['DateTime']>
 }
@@ -10268,6 +10389,8 @@ export type ProposalWhereInput = {
   councilApprovals_lte?: Maybe<Scalars['Int']>
   councilApprovals_in?: Maybe<Array<Scalars['Int']>>
   status_json?: Maybe<Scalars['JSONObject']>
+  isFinalized_eq?: Maybe<Scalars['Boolean']>
+  isFinalized_in?: Maybe<Array<Scalars['Boolean']>>
   statusSetAtBlock_eq?: Maybe<Scalars['Int']>
   statusSetAtBlock_gt?: Maybe<Scalars['Int']>
   statusSetAtBlock_gte?: Maybe<Scalars['Int']>
@@ -10367,6 +10490,9 @@ export type Query = {
   forumPosts: Array<ForumPost>
   forumPostByUniqueInput?: Maybe<ForumPost>
   forumPostsConnection: ForumPostConnection
+  forumThreadTags: Array<ForumThreadTag>
+  forumThreadTagByUniqueInput?: Maybe<ForumThreadTag>
+  forumThreadTagsConnection: ForumThreadTagConnection
   forumThreads: Array<ForumThread>
   forumThreadByUniqueInput?: Maybe<ForumThread>
   forumThreadsConnection: ForumThreadConnection
@@ -10546,15 +10672,15 @@ export type Query = {
   threadDeletedEvents: Array<ThreadDeletedEvent>
   threadDeletedEventByUniqueInput?: Maybe<ThreadDeletedEvent>
   threadDeletedEventsConnection: ThreadDeletedEventConnection
+  threadMetadataUpdatedEvents: Array<ThreadMetadataUpdatedEvent>
+  threadMetadataUpdatedEventByUniqueInput?: Maybe<ThreadMetadataUpdatedEvent>
+  threadMetadataUpdatedEventsConnection: ThreadMetadataUpdatedEventConnection
   threadModeratedEvents: Array<ThreadModeratedEvent>
   threadModeratedEventByUniqueInput?: Maybe<ThreadModeratedEvent>
   threadModeratedEventsConnection: ThreadModeratedEventConnection
   threadMovedEvents: Array<ThreadMovedEvent>
   threadMovedEventByUniqueInput?: Maybe<ThreadMovedEvent>
   threadMovedEventsConnection: ThreadMovedEventConnection
-  threadTitleUpdatedEvents: Array<ThreadTitleUpdatedEvent>
-  threadTitleUpdatedEventByUniqueInput?: Maybe<ThreadTitleUpdatedEvent>
-  threadTitleUpdatedEventsConnection: ThreadTitleUpdatedEventConnection
   upcomingWorkingGroupOpenings: Array<UpcomingWorkingGroupOpening>
   upcomingWorkingGroupOpeningByUniqueInput?: Maybe<UpcomingWorkingGroupOpening>
   upcomingWorkingGroupOpeningsConnection: UpcomingWorkingGroupOpeningConnection
@@ -11013,6 +11139,26 @@ export type QueryForumPostsConnectionArgs = {
   before?: Maybe<Scalars['String']>
   where?: Maybe<ForumPostWhereInput>
   orderBy?: Maybe<Array<ForumPostOrderByInput>>
+}
+
+export type QueryForumThreadTagsArgs = {
+  offset?: Maybe<Scalars['Int']>
+  limit?: Maybe<Scalars['Int']>
+  where?: Maybe<ForumThreadTagWhereInput>
+  orderBy?: Maybe<Array<ForumThreadTagOrderByInput>>
+}
+
+export type QueryForumThreadTagByUniqueInputArgs = {
+  where: ForumThreadTagWhereUniqueInput
+}
+
+export type QueryForumThreadTagsConnectionArgs = {
+  first?: Maybe<Scalars['Int']>
+  after?: Maybe<Scalars['String']>
+  last?: Maybe<Scalars['Int']>
+  before?: Maybe<Scalars['String']>
+  where?: Maybe<ForumThreadTagWhereInput>
+  orderBy?: Maybe<Array<ForumThreadTagOrderByInput>>
 }
 
 export type QueryForumThreadsArgs = {
@@ -12212,6 +12358,26 @@ export type QueryThreadDeletedEventsConnectionArgs = {
   orderBy?: Maybe<Array<ThreadDeletedEventOrderByInput>>
 }
 
+export type QueryThreadMetadataUpdatedEventsArgs = {
+  offset?: Maybe<Scalars['Int']>
+  limit?: Maybe<Scalars['Int']>
+  where?: Maybe<ThreadMetadataUpdatedEventWhereInput>
+  orderBy?: Maybe<Array<ThreadMetadataUpdatedEventOrderByInput>>
+}
+
+export type QueryThreadMetadataUpdatedEventByUniqueInputArgs = {
+  where: ThreadMetadataUpdatedEventWhereUniqueInput
+}
+
+export type QueryThreadMetadataUpdatedEventsConnectionArgs = {
+  first?: Maybe<Scalars['Int']>
+  after?: Maybe<Scalars['String']>
+  last?: Maybe<Scalars['Int']>
+  before?: Maybe<Scalars['String']>
+  where?: Maybe<ThreadMetadataUpdatedEventWhereInput>
+  orderBy?: Maybe<Array<ThreadMetadataUpdatedEventOrderByInput>>
+}
+
 export type QueryThreadModeratedEventsArgs = {
   offset?: Maybe<Scalars['Int']>
   limit?: Maybe<Scalars['Int']>
@@ -12250,26 +12416,6 @@ export type QueryThreadMovedEventsConnectionArgs = {
   before?: Maybe<Scalars['String']>
   where?: Maybe<ThreadMovedEventWhereInput>
   orderBy?: Maybe<Array<ThreadMovedEventOrderByInput>>
-}
-
-export type QueryThreadTitleUpdatedEventsArgs = {
-  offset?: Maybe<Scalars['Int']>
-  limit?: Maybe<Scalars['Int']>
-  where?: Maybe<ThreadTitleUpdatedEventWhereInput>
-  orderBy?: Maybe<Array<ThreadTitleUpdatedEventOrderByInput>>
-}
-
-export type QueryThreadTitleUpdatedEventByUniqueInputArgs = {
-  where: ThreadTitleUpdatedEventWhereUniqueInput
-}
-
-export type QueryThreadTitleUpdatedEventsConnectionArgs = {
-  first?: Maybe<Scalars['Int']>
-  after?: Maybe<Scalars['String']>
-  last?: Maybe<Scalars['Int']>
-  before?: Maybe<Scalars['String']>
-  where?: Maybe<ThreadTitleUpdatedEventWhereInput>
-  orderBy?: Maybe<Array<ThreadTitleUpdatedEventOrderByInput>>
 }
 
 export type QueryUpcomingWorkingGroupOpeningsArgs = {
@@ -15237,6 +15383,139 @@ export type ThreadDeletedEventWhereUniqueInput = {
   id: Scalars['ID']
 }
 
+export type ThreadMetadataUpdatedEvent = BaseGraphQlObject & {
+  id: Scalars['ID']
+  createdAt: Scalars['DateTime']
+  createdById: Scalars['String']
+  updatedAt?: Maybe<Scalars['DateTime']>
+  updatedById?: Maybe<Scalars['String']>
+  deletedAt?: Maybe<Scalars['DateTime']>
+  deletedById?: Maybe<Scalars['String']>
+  version: Scalars['Int']
+  /** Hash of the extrinsic which caused the event to be emitted */
+  inExtrinsic?: Maybe<Scalars['String']>
+  /** Blocknumber of the block in which the event was emitted. */
+  inBlock: Scalars['Int']
+  /** Network the block was produced in */
+  network: Network
+  /** Index of event in block from which it was emitted. */
+  indexInBlock: Scalars['Int']
+  thread: ForumThread
+  threadId: Scalars['String']
+  /** New title of the thread */
+  newTitle?: Maybe<Scalars['String']>
+}
+
+export type ThreadMetadataUpdatedEventConnection = {
+  totalCount: Scalars['Int']
+  edges: Array<ThreadMetadataUpdatedEventEdge>
+  pageInfo: PageInfo
+}
+
+export type ThreadMetadataUpdatedEventCreateInput = {
+  inExtrinsic?: Maybe<Scalars['String']>
+  inBlock: Scalars['Float']
+  network: Network
+  indexInBlock: Scalars['Float']
+  thread: Scalars['ID']
+  newTitle?: Maybe<Scalars['String']>
+}
+
+export type ThreadMetadataUpdatedEventEdge = {
+  node: ThreadMetadataUpdatedEvent
+  cursor: Scalars['String']
+}
+
+export enum ThreadMetadataUpdatedEventOrderByInput {
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  InExtrinsicAsc = 'inExtrinsic_ASC',
+  InExtrinsicDesc = 'inExtrinsic_DESC',
+  InBlockAsc = 'inBlock_ASC',
+  InBlockDesc = 'inBlock_DESC',
+  NetworkAsc = 'network_ASC',
+  NetworkDesc = 'network_DESC',
+  IndexInBlockAsc = 'indexInBlock_ASC',
+  IndexInBlockDesc = 'indexInBlock_DESC',
+  ThreadAsc = 'thread_ASC',
+  ThreadDesc = 'thread_DESC',
+  NewTitleAsc = 'newTitle_ASC',
+  NewTitleDesc = 'newTitle_DESC',
+}
+
+export type ThreadMetadataUpdatedEventUpdateInput = {
+  inExtrinsic?: Maybe<Scalars['String']>
+  inBlock?: Maybe<Scalars['Float']>
+  network?: Maybe<Network>
+  indexInBlock?: Maybe<Scalars['Float']>
+  thread?: Maybe<Scalars['ID']>
+  newTitle?: Maybe<Scalars['String']>
+}
+
+export type ThreadMetadataUpdatedEventWhereInput = {
+  id_eq?: Maybe<Scalars['ID']>
+  id_in?: Maybe<Array<Scalars['ID']>>
+  createdAt_eq?: Maybe<Scalars['DateTime']>
+  createdAt_lt?: Maybe<Scalars['DateTime']>
+  createdAt_lte?: Maybe<Scalars['DateTime']>
+  createdAt_gt?: Maybe<Scalars['DateTime']>
+  createdAt_gte?: Maybe<Scalars['DateTime']>
+  createdById_eq?: Maybe<Scalars['ID']>
+  createdById_in?: Maybe<Array<Scalars['ID']>>
+  updatedAt_eq?: Maybe<Scalars['DateTime']>
+  updatedAt_lt?: Maybe<Scalars['DateTime']>
+  updatedAt_lte?: Maybe<Scalars['DateTime']>
+  updatedAt_gt?: Maybe<Scalars['DateTime']>
+  updatedAt_gte?: Maybe<Scalars['DateTime']>
+  updatedById_eq?: Maybe<Scalars['ID']>
+  updatedById_in?: Maybe<Array<Scalars['ID']>>
+  deletedAt_all?: Maybe<Scalars['Boolean']>
+  deletedAt_eq?: Maybe<Scalars['DateTime']>
+  deletedAt_lt?: Maybe<Scalars['DateTime']>
+  deletedAt_lte?: Maybe<Scalars['DateTime']>
+  deletedAt_gt?: Maybe<Scalars['DateTime']>
+  deletedAt_gte?: Maybe<Scalars['DateTime']>
+  deletedById_eq?: Maybe<Scalars['ID']>
+  deletedById_in?: Maybe<Array<Scalars['ID']>>
+  inExtrinsic_eq?: Maybe<Scalars['String']>
+  inExtrinsic_contains?: Maybe<Scalars['String']>
+  inExtrinsic_startsWith?: Maybe<Scalars['String']>
+  inExtrinsic_endsWith?: Maybe<Scalars['String']>
+  inExtrinsic_in?: Maybe<Array<Scalars['String']>>
+  inBlock_eq?: Maybe<Scalars['Int']>
+  inBlock_gt?: Maybe<Scalars['Int']>
+  inBlock_gte?: Maybe<Scalars['Int']>
+  inBlock_lt?: Maybe<Scalars['Int']>
+  inBlock_lte?: Maybe<Scalars['Int']>
+  inBlock_in?: Maybe<Array<Scalars['Int']>>
+  network_eq?: Maybe<Network>
+  network_in?: Maybe<Array<Network>>
+  indexInBlock_eq?: Maybe<Scalars['Int']>
+  indexInBlock_gt?: Maybe<Scalars['Int']>
+  indexInBlock_gte?: Maybe<Scalars['Int']>
+  indexInBlock_lt?: Maybe<Scalars['Int']>
+  indexInBlock_lte?: Maybe<Scalars['Int']>
+  indexInBlock_in?: Maybe<Array<Scalars['Int']>>
+  thread_eq?: Maybe<Scalars['ID']>
+  thread_in?: Maybe<Array<Scalars['ID']>>
+  newTitle_eq?: Maybe<Scalars['String']>
+  newTitle_contains?: Maybe<Scalars['String']>
+  newTitle_startsWith?: Maybe<Scalars['String']>
+  newTitle_endsWith?: Maybe<Scalars['String']>
+  newTitle_in?: Maybe<Array<Scalars['String']>>
+  thread?: Maybe<ForumThreadWhereInput>
+  AND?: Maybe<Array<ThreadMetadataUpdatedEventWhereInput>>
+  OR?: Maybe<Array<ThreadMetadataUpdatedEventWhereInput>>
+}
+
+export type ThreadMetadataUpdatedEventWhereUniqueInput = {
+  id: Scalars['ID']
+}
+
 export type ThreadModeratedEvent = BaseGraphQlObject & {
   id: Scalars['ID']
   createdAt: Scalars['DateTime']
@@ -15603,139 +15882,6 @@ export type ThreadStatusModerated = {
 export type ThreadStatusRemoved = {
   /** Event the thread was removed in */
   threadDeletedEvent?: Maybe<ThreadDeletedEvent>
-}
-
-export type ThreadTitleUpdatedEvent = BaseGraphQlObject & {
-  id: Scalars['ID']
-  createdAt: Scalars['DateTime']
-  createdById: Scalars['String']
-  updatedAt?: Maybe<Scalars['DateTime']>
-  updatedById?: Maybe<Scalars['String']>
-  deletedAt?: Maybe<Scalars['DateTime']>
-  deletedById?: Maybe<Scalars['String']>
-  version: Scalars['Int']
-  /** Hash of the extrinsic which caused the event to be emitted */
-  inExtrinsic?: Maybe<Scalars['String']>
-  /** Blocknumber of the block in which the event was emitted. */
-  inBlock: Scalars['Int']
-  /** Network the block was produced in */
-  network: Network
-  /** Index of event in block from which it was emitted. */
-  indexInBlock: Scalars['Int']
-  thread: ForumThread
-  threadId: Scalars['String']
-  /** New title of the thread */
-  newTitle: Scalars['String']
-}
-
-export type ThreadTitleUpdatedEventConnection = {
-  totalCount: Scalars['Int']
-  edges: Array<ThreadTitleUpdatedEventEdge>
-  pageInfo: PageInfo
-}
-
-export type ThreadTitleUpdatedEventCreateInput = {
-  inExtrinsic?: Maybe<Scalars['String']>
-  inBlock: Scalars['Float']
-  network: Network
-  indexInBlock: Scalars['Float']
-  thread: Scalars['ID']
-  newTitle: Scalars['String']
-}
-
-export type ThreadTitleUpdatedEventEdge = {
-  node: ThreadTitleUpdatedEvent
-  cursor: Scalars['String']
-}
-
-export enum ThreadTitleUpdatedEventOrderByInput {
-  CreatedAtAsc = 'createdAt_ASC',
-  CreatedAtDesc = 'createdAt_DESC',
-  UpdatedAtAsc = 'updatedAt_ASC',
-  UpdatedAtDesc = 'updatedAt_DESC',
-  DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC',
-  InExtrinsicAsc = 'inExtrinsic_ASC',
-  InExtrinsicDesc = 'inExtrinsic_DESC',
-  InBlockAsc = 'inBlock_ASC',
-  InBlockDesc = 'inBlock_DESC',
-  NetworkAsc = 'network_ASC',
-  NetworkDesc = 'network_DESC',
-  IndexInBlockAsc = 'indexInBlock_ASC',
-  IndexInBlockDesc = 'indexInBlock_DESC',
-  ThreadAsc = 'thread_ASC',
-  ThreadDesc = 'thread_DESC',
-  NewTitleAsc = 'newTitle_ASC',
-  NewTitleDesc = 'newTitle_DESC',
-}
-
-export type ThreadTitleUpdatedEventUpdateInput = {
-  inExtrinsic?: Maybe<Scalars['String']>
-  inBlock?: Maybe<Scalars['Float']>
-  network?: Maybe<Network>
-  indexInBlock?: Maybe<Scalars['Float']>
-  thread?: Maybe<Scalars['ID']>
-  newTitle?: Maybe<Scalars['String']>
-}
-
-export type ThreadTitleUpdatedEventWhereInput = {
-  id_eq?: Maybe<Scalars['ID']>
-  id_in?: Maybe<Array<Scalars['ID']>>
-  createdAt_eq?: Maybe<Scalars['DateTime']>
-  createdAt_lt?: Maybe<Scalars['DateTime']>
-  createdAt_lte?: Maybe<Scalars['DateTime']>
-  createdAt_gt?: Maybe<Scalars['DateTime']>
-  createdAt_gte?: Maybe<Scalars['DateTime']>
-  createdById_eq?: Maybe<Scalars['ID']>
-  createdById_in?: Maybe<Array<Scalars['ID']>>
-  updatedAt_eq?: Maybe<Scalars['DateTime']>
-  updatedAt_lt?: Maybe<Scalars['DateTime']>
-  updatedAt_lte?: Maybe<Scalars['DateTime']>
-  updatedAt_gt?: Maybe<Scalars['DateTime']>
-  updatedAt_gte?: Maybe<Scalars['DateTime']>
-  updatedById_eq?: Maybe<Scalars['ID']>
-  updatedById_in?: Maybe<Array<Scalars['ID']>>
-  deletedAt_all?: Maybe<Scalars['Boolean']>
-  deletedAt_eq?: Maybe<Scalars['DateTime']>
-  deletedAt_lt?: Maybe<Scalars['DateTime']>
-  deletedAt_lte?: Maybe<Scalars['DateTime']>
-  deletedAt_gt?: Maybe<Scalars['DateTime']>
-  deletedAt_gte?: Maybe<Scalars['DateTime']>
-  deletedById_eq?: Maybe<Scalars['ID']>
-  deletedById_in?: Maybe<Array<Scalars['ID']>>
-  inExtrinsic_eq?: Maybe<Scalars['String']>
-  inExtrinsic_contains?: Maybe<Scalars['String']>
-  inExtrinsic_startsWith?: Maybe<Scalars['String']>
-  inExtrinsic_endsWith?: Maybe<Scalars['String']>
-  inExtrinsic_in?: Maybe<Array<Scalars['String']>>
-  inBlock_eq?: Maybe<Scalars['Int']>
-  inBlock_gt?: Maybe<Scalars['Int']>
-  inBlock_gte?: Maybe<Scalars['Int']>
-  inBlock_lt?: Maybe<Scalars['Int']>
-  inBlock_lte?: Maybe<Scalars['Int']>
-  inBlock_in?: Maybe<Array<Scalars['Int']>>
-  network_eq?: Maybe<Network>
-  network_in?: Maybe<Array<Network>>
-  indexInBlock_eq?: Maybe<Scalars['Int']>
-  indexInBlock_gt?: Maybe<Scalars['Int']>
-  indexInBlock_gte?: Maybe<Scalars['Int']>
-  indexInBlock_lt?: Maybe<Scalars['Int']>
-  indexInBlock_lte?: Maybe<Scalars['Int']>
-  indexInBlock_in?: Maybe<Array<Scalars['Int']>>
-  thread_eq?: Maybe<Scalars['ID']>
-  thread_in?: Maybe<Array<Scalars['ID']>>
-  newTitle_eq?: Maybe<Scalars['String']>
-  newTitle_contains?: Maybe<Scalars['String']>
-  newTitle_startsWith?: Maybe<Scalars['String']>
-  newTitle_endsWith?: Maybe<Scalars['String']>
-  newTitle_in?: Maybe<Array<Scalars['String']>>
-  thread?: Maybe<ForumThreadWhereInput>
-  AND?: Maybe<Array<ThreadTitleUpdatedEventWhereInput>>
-  OR?: Maybe<Array<ThreadTitleUpdatedEventWhereInput>>
-}
-
-export type ThreadTitleUpdatedEventWhereUniqueInput = {
-  id: Scalars['ID']
 }
 
 export type UnlockBlogPostProposalDetails = {

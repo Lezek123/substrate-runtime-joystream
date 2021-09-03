@@ -28,7 +28,7 @@ fragment ProposalDiscussionThreadFields on ProposalDiscussionThread {
   proposal {
     id
   }
-  discussionPosts {
+  posts {
     id
   }
   mode {
@@ -47,7 +47,7 @@ query getProposalDiscussionThreadsByIds($ids: [ID!]) {
 
 fragment ProposalDiscussionPostFields on ProposalDiscussionPost {
   id
-  thread {
+  discussionThread {
     id
   }
   author {

@@ -89,7 +89,7 @@ export class CreatePostsFixture extends StandardizedFixture {
         postParams.metadata
       )
       Utils.assert(qPost, 'Query node: Post not found')
-      assert.equal(qPost.thread.id, postParams.threadId.toString())
+      assert.equal(qPost.discussionThread.id, postParams.threadId.toString())
       assert.equal(qPost.author.id, postParams.asMember.toString())
       assert.equal(qPost.status.__typename, expectedStatus)
       assert.equal(qPost.text, this.getPostExpectedText(postParams))

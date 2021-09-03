@@ -37,7 +37,7 @@ export type ForumPostFieldsFragment = {
   reactions: Array<{ id: string; reaction: Types.PostReaction; member: { id: string } }>
 }
 
-export type ForumThreadWithPostsFieldsFragment = {
+export type ForumThreadWithInitialPostFragment = {
   id: string
   createdAt: any
   updatedAt?: Types.Maybe<any>
@@ -45,20 +45,21 @@ export type ForumThreadWithPostsFieldsFragment = {
   isSticky: boolean
   author: { id: string }
   category: { id: string }
-  posts: Array<ForumPostFieldsFragment>
+  initialPost?: Types.Maybe<ForumPostFieldsFragment>
   poll?: Types.Maybe<{
     description: string
     endTime: any
     pollAlternatives: Array<{ index: number; text: string; votes: Array<{ votingMember: { id: string } }> }>
   }>
-  createdInEvent: { id: string }
+  createdInEvent: { id: string; title: string; text: string }
   status:
     | { __typename: 'ThreadStatusActive' }
     | { __typename: 'ThreadStatusLocked'; threadDeletedEvent?: Types.Maybe<{ id: string }> }
     | { __typename: 'ThreadStatusModerated'; threadModeratedEvent?: Types.Maybe<{ id: string }> }
     | { __typename: 'ThreadStatusRemoved'; threadDeletedEvent?: Types.Maybe<{ id: string }> }
-  titleUpdates: Array<{ id: string }>
+  metadataUpdates: Array<{ id: string }>
   movedInEvents: Array<{ id: string }>
+  tags: Array<{ id: string }>
 }
 
 export type GetCategoriesByIdsQueryVariables = Types.Exact<{
@@ -67,11 +68,11 @@ export type GetCategoriesByIdsQueryVariables = Types.Exact<{
 
 export type GetCategoriesByIdsQuery = { forumCategories: Array<ForumCategoryFieldsFragment> }
 
-export type GetThreadsWithPostsByIdsQueryVariables = Types.Exact<{
+export type GetThreadsWithInitialPostsByIdsQueryVariables = Types.Exact<{
   ids?: Types.Maybe<Array<Types.Scalars['ID']> | Types.Scalars['ID']>
 }>
 
-export type GetThreadsWithPostsByIdsQuery = { forumThreads: Array<ForumThreadWithPostsFieldsFragment> }
+export type GetThreadsWithInitialPostsByIdsQuery = { forumThreads: Array<ForumThreadWithInitialPostFragment> }
 
 export type GetPostsByIdsQueryVariables = Types.Exact<{
   ids?: Types.Maybe<Array<Types.Scalars['ID']> | Types.Scalars['ID']>
@@ -143,6 +144,8 @@ export type ThreadCreatedEventFieldsFragment = {
   network: Types.Network
   inExtrinsic?: Types.Maybe<string>
   indexInBlock: number
+  title: string
+  text: string
   thread: { id: string }
 }
 
@@ -152,23 +155,23 @@ export type GetThreadCreatedEventsByEventIdsQueryVariables = Types.Exact<{
 
 export type GetThreadCreatedEventsByEventIdsQuery = { threadCreatedEvents: Array<ThreadCreatedEventFieldsFragment> }
 
-export type ThreadTitleUpdatedEventFieldsFragment = {
+export type ThreadMetadataUpdatedEventFieldsFragment = {
   id: string
   createdAt: any
   inBlock: number
   network: Types.Network
   inExtrinsic?: Types.Maybe<string>
   indexInBlock: number
-  newTitle: string
+  newTitle?: Types.Maybe<string>
   thread: { id: string }
 }
 
-export type GetThreadTitleUpdatedEventsByEventIdsQueryVariables = Types.Exact<{
+export type GetThreadMetadataUpdatedEventsByEventIdsQueryVariables = Types.Exact<{
   eventIds?: Types.Maybe<Array<Types.Scalars['ID']> | Types.Scalars['ID']>
 }>
 
-export type GetThreadTitleUpdatedEventsByEventIdsQuery = {
-  threadTitleUpdatedEvents: Array<ThreadTitleUpdatedEventFieldsFragment>
+export type GetThreadMetadataUpdatedEventsByEventIdsQuery = {
+  threadMetadataUpdatedEvents: Array<ThreadMetadataUpdatedEventFieldsFragment>
 }
 
 export type VoteOnPollEventFieldsFragment = {
@@ -985,6 +988,7 @@ export type ProposalFieldsFragment = {
   councilApprovals: number
   statusSetAtBlock: number
   statusSetAtTime: any
+  isFinalized?: Types.Maybe<boolean>
   details:
     | ProposalDetailsFields_SignalProposalDetails_Fragment
     | ProposalDetailsFields_RuntimeUpgradeProposalDetails_Fragment
@@ -1083,7 +1087,7 @@ export type ProposalDiscussionPostStatusFieldsFragment =
 export type ProposalDiscussionThreadFieldsFragment = {
   id: string
   proposal: { id: string }
-  discussionPosts: Array<{ id: string }>
+  posts: Array<{ id: string }>
   mode:
     | ProposalDiscussionThreadModeFields_ProposalDiscussionThreadModeOpen_Fragment
     | ProposalDiscussionThreadModeFields_ProposalDiscussionThreadModeClosed_Fragment
@@ -1101,7 +1105,7 @@ export type GetProposalDiscussionThreadsByIdsQuery = {
 export type ProposalDiscussionPostFieldsFragment = {
   id: string
   text: string
-  thread: { id: string }
+  discussionThread: { id: string }
   author: { id: string }
   status:
     | ProposalDiscussionPostStatusFields_ProposalDiscussionPostStatusActive_Fragment
@@ -1970,8 +1974,8 @@ export const ForumPostFields = gql`
     }
   }
 `
-export const ForumThreadWithPostsFields = gql`
-  fragment ForumThreadWithPostsFields on ForumThread {
+export const ForumThreadWithInitialPost = gql`
+  fragment ForumThreadWithInitialPost on ForumThread {
     id
     createdAt
     updatedAt
@@ -1982,7 +1986,7 @@ export const ForumThreadWithPostsFields = gql`
       id
     }
     title
-    posts {
+    initialPost {
       ...ForumPostFields
     }
     poll {
@@ -2001,6 +2005,8 @@ export const ForumThreadWithPostsFields = gql`
     isSticky
     createdInEvent {
       id
+      title
+      text
     }
     status {
       __typename
@@ -2020,10 +2026,13 @@ export const ForumThreadWithPostsFields = gql`
         }
       }
     }
-    titleUpdates {
+    metadataUpdates {
       id
     }
     movedInEvents {
+      id
+    }
+    tags {
       id
     }
   }
@@ -2083,13 +2092,15 @@ export const ThreadCreatedEventFields = gql`
     network
     inExtrinsic
     indexInBlock
+    title
+    text
     thread {
       id
     }
   }
 `
-export const ThreadTitleUpdatedEventFields = gql`
-  fragment ThreadTitleUpdatedEventFields on ThreadTitleUpdatedEvent {
+export const ThreadMetadataUpdatedEventFields = gql`
+  fragment ThreadMetadataUpdatedEventFields on ThreadMetadataUpdatedEvent {
     id
     createdAt
     inBlock
@@ -2813,6 +2824,7 @@ export const ProposalFields = gql`
     }
     statusSetAtBlock
     statusSetAtTime
+    isFinalized
     createdInEvent {
       id
       inBlock
@@ -2835,7 +2847,7 @@ export const ProposalDiscussionThreadFields = gql`
     proposal {
       id
     }
-    discussionPosts {
+    posts {
       id
     }
     mode {
@@ -2865,7 +2877,7 @@ export const ProposalDiscussionPostStatusFields = gql`
 export const ProposalDiscussionPostFields = gql`
   fragment ProposalDiscussionPostFields on ProposalDiscussionPost {
     id
-    thread {
+    discussionThread {
       id
     }
     author {
@@ -3606,13 +3618,13 @@ export const GetCategoriesByIds = gql`
   }
   ${ForumCategoryFields}
 `
-export const GetThreadsWithPostsByIds = gql`
-  query getThreadsWithPostsByIds($ids: [ID!]) {
+export const GetThreadsWithInitialPostsByIds = gql`
+  query getThreadsWithInitialPostsByIds($ids: [ID!]) {
     forumThreads(where: { id_in: $ids }) {
-      ...ForumThreadWithPostsFields
+      ...ForumThreadWithInitialPost
     }
   }
-  ${ForumThreadWithPostsFields}
+  ${ForumThreadWithInitialPost}
 `
 export const GetPostsByIds = gql`
   query getPostsByIds($ids: [ID!]) {
@@ -3654,13 +3666,13 @@ export const GetThreadCreatedEventsByEventIds = gql`
   }
   ${ThreadCreatedEventFields}
 `
-export const GetThreadTitleUpdatedEventsByEventIds = gql`
-  query getThreadTitleUpdatedEventsByEventIds($eventIds: [ID!]) {
-    threadTitleUpdatedEvents(where: { id_in: $eventIds }) {
-      ...ThreadTitleUpdatedEventFields
+export const GetThreadMetadataUpdatedEventsByEventIds = gql`
+  query getThreadMetadataUpdatedEventsByEventIds($eventIds: [ID!]) {
+    threadMetadataUpdatedEvents(where: { id_in: $eventIds }) {
+      ...ThreadMetadataUpdatedEventFields
     }
   }
-  ${ThreadTitleUpdatedEventFields}
+  ${ThreadMetadataUpdatedEventFields}
 `
 export const GetVoteOnPollEventsByEventIds = gql`
   query getVoteOnPollEventsByEventIds($eventIds: [ID!]) {
