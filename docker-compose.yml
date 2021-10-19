@@ -95,8 +95,7 @@ services:
     build:
       context: .
       dockerfile: apps.Dockerfile
-      args:
-        - WS_PROVIDER_ENDPOINT_URI=${WS_PROVIDER_ENDPOINT_URI}
+      network: joystream_default
     env_file:
       # relative to working directory where docker-compose was run from
       - .env
@@ -129,8 +128,7 @@ services:
     build:
       context: .
       dockerfile: apps.Dockerfile
-      args:
-        - WS_PROVIDER_ENDPOINT_URI=${WS_PROVIDER_ENDPOINT_URI}
+      network: joystream_default
     env_file:
       # relative to working directory where docker-compose was run from
       - .env
