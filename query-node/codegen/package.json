@@ -5,10 +5,15 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "postinstall": "cd .. && yarn workspace query-node-mappings postHydraCLIInstall"
   },
   "dependencies": {
-    "@joystream/hydra-cli": "3.1.0-alpha.13",
-    "@joystream/hydra-typegen": "3.1.0-alpha.13"
+    "@joystream/hydra-cli": "file:../../hydra/hydra-cli.tgz",
+    "@joystream/hydra-typegen": "file:../../hydra/hydra-typegen.tgz"
+  },
+  "resolutions": {
+    "@joystream/hydra-common": "file:../../hydra/hydra-common.tgz",
+    "@joystream/hydra-db-utils": "file:../../hydra/hydra-db-utils.tgz",
+    "@joystream/hydra-cli": "file:../../hydra/hydra-cli.tgz",
+    "@joystream/hydra-typegen": "file:../../hydra/hydra-typegen.tgz"
   }
 }

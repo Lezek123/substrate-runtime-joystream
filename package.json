@@ -49,7 +49,12 @@
     "typeorm": "0.2.34",
     "pg": "^8.4.0",
     "chalk": "^4.0.0",
-    "@joystream/warthog": "2.39.0"
+    "@joystream/warthog": "https://github.com/Lezek123/warthog/raw/warthog-2-41/joystream-warthog-v2.41.1.tgz",
+    "@joystream/hydra-common": "file:./hydra/hydra-common.tgz",
+    "@joystream/hydra-db-utils": "file:./hydra/hydra-db-utils.tgz",
+    "@joystream/hydra-cli": "file:./hydra/hydra-cli.tgz",
+    "@joystream/hydra-typegen": "file:./hydra/hydra-typegen.tgz",
+    "@joystream/hydra-processor": "file:./hydra/hydra-processor.tgz"
   },
   "devDependencies": {
     "eslint": "^7.25.0",
