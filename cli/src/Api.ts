@@ -3,7 +3,7 @@ import { createType, types } from '@joystream/types/'
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { SubmittableExtrinsic, AugmentedQuery } from '@polkadot/api/types'
 import { formatBalance } from '@polkadot/util'
-import { Balance } from '@polkadot/types/interfaces'
+import { Balance, BlockNumber } from '@polkadot/types/interfaces'
 import { KeyringPair } from '@polkadot/keyring/types'
 import { Codec, Observable } from '@polkadot/types/types'
 import { UInt } from '@polkadot/types'
@@ -19,14 +19,7 @@ import {
 } from './Types'
 import { DeriveBalancesAll } from '@polkadot/api-derive/types'
 import { CLIError } from '@oclif/errors'
-import {
-  Worker,
-  WorkerId,
-  OpeningId,
-  Application,
-  ApplicationId,
-  Opening,
-} from '@joystream/types/working-group'
+import { Worker, WorkerId, OpeningId, Application, ApplicationId, Opening } from '@joystream/types/working-group'
 import { Membership, StakingAccountMemberBinding } from '@joystream/types/members'
 import { MemberId, ChannelId, AccountId } from '@joystream/types/common'
 import {

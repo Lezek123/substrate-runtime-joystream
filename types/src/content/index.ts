@@ -98,6 +98,7 @@ export class ContentActor extends JoyEnum({
   Curator: Tuple.with([CuratorGroupId, CuratorId]),
   Member: MemberId,
   Lead: Null,
+  Collaborator: MemberId,
 }) {}
 
 export class ChannelOwner extends JoyEnum({
