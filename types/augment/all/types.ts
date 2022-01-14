@@ -289,6 +289,8 @@ export interface ContentActor extends Enum {
   readonly isMember: boolean;
   readonly asMember: MemberId;
   readonly isLead: boolean;
+  readonly isCollaborator: boolean;
+  readonly asCollaborator: MemberId;
 }
 
 /** @name ContentIdSet */
