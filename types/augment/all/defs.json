@@ -629,8 +629,7 @@
         "_enum": {
             "Curator": "(CuratorGroupId,CuratorId)",
             "Member": "MemberId",
-            "Lead": "Null",
-            "Collaborator": "MemberId"
+            "Lead": "Null"
         }
     },
     "StorageAssets": {
