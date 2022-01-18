@@ -296,6 +296,69 @@ export class PullPayment extends JoyStructDecorated({
 
 export class ModeratorSet extends BTreeSet.with(MemberId) {}
 
+// NFT types
+
+export class Royalty extends UInt {}
+export class IsExtended extends bool {}
+
+export class EnglishAuctionDetails extends JoyStructDecorated({
+  extension_period: BlockNumber,
+  auction_duration: BlockNumber,
+}) {}
+
+export class OpenAuctionDetails extends JoyStructDecorated({
+  bid_lock_duration: BlockNumber,
+}) {}
+
+export class AuctionType extends JoyEnum({
+  English: EnglishAuctionDetails,
+  Open: OpenAuctionDetails,
+}) {}
+
+export class Bid extends JoyStructDecorated({
+  bidder: MemberId,
+  bidder_account_id: AccountId,
+  amount: Balance,
+  made_at_block: BlockNumber,
+}) {}
+
+export class Auction extends JoyStructDecorated({
+  starting_price: Balance,
+  buy_now_price: Option.with(Balance),
+  auction_type: AuctionType,
+  minimal_bid_step: Balance,
+  last_bid: Option.with(Bid),
+  starts_at: BlockNumber,
+  whitelist: BTreeSet.with(MemberId),
+}) {}
+
+export class TransactionalStatus extends JoyEnum({
+  Idle: Null,
+  InitiatedOfferToMember: Tuple.with([MemberId, Option.with(Balance)]),
+  Auction,
+  BuyNow: Balance,
+}) {}
+
+export class NFTOwner extends JoyEnum({
+  ChannelOwner: Null,
+  Member: MemberId,
+}) {}
+
+export class OwnedNFT extends JoyStructDecorated({
+  owner: NFTOwner,
+  transactional_status: TransactionalStatus,
+  creator_royalty: Option.with(Royalty),
+}) {}
+
+export class AuctionParams extends JoyStructDecorated({
+  auction_type: AuctionType,
+  starting_price: Balance,
+  minimal_bid_step: Balance,
+  buy_now_price: Option.with(Balance),
+  starts_at: Option.with(BlockNumber),
+  whitelist: BTreeSet.with(MemberId),
+}) {}
+
 export const contentTypes = {
   CuratorId,
   CuratorGroupId,
