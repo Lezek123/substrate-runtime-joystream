@@ -293,3 +293,10 @@ export async function getById<T extends BaseModel>(
 
   return result
 }
+
+export function deterministicEntityId(createdInEvent: SubstrateEvent, additionalIdentifier?: string | number): string {
+  return (
+    `${createdInEvent.blockNumber}-${createdInEvent.indexInBlock}` +
+    (additionalIdentifier ? `-${additionalIdentifier}` : '')
+  )
+}
