@@ -630,14 +630,17 @@ export interface OptionResult extends Struct {
 }
 
 /** @name OracleJudgment */
-export interface OracleJudgment extends Enum {
+export interface OracleJudgment extends BTreeMap<EntryId, OracleWorkEntryJudgment> {}
+
+/** @name OracleWorkEntryJudgment */
+export interface OracleWorkEntryJudgment extends Enum {
   readonly isWinner: boolean;
-  readonly asWinner: OracleJudgment_Winner;
+  readonly asWinner: OracleWorkEntryJudgment_Winner;
   readonly isRejected: boolean;
 }
 
-/** @name OracleJudgment_Winner */
-export interface OracleJudgment_Winner extends Struct {
+/** @name OracleWorkEntryJudgment_Winner */
+export interface OracleWorkEntryJudgment_Winner extends Struct {
   readonly reward: u128;
 }
 
