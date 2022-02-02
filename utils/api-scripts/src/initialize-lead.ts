@@ -1,11 +1,10 @@
-import { registry, types } from '@joystream/types'
+import { createType, types } from '@joystream/types'
 import { MemberId } from '@joystream/types/common'
 import { ApplicationId, OpeningId } from '@joystream/types/working-group'
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { SubmittableExtrinsic } from '@polkadot/api/types'
 import { ExtrinsicsHelper, getAlicePair, getKeyFromSuri } from './helpers/extrinsics'
 import BN from 'bn.js'
-import { BTreeSet } from '@polkadot/types'
 
 const workingGroupModules = [
   'storageWorkingGroup',
@@ -116,7 +115,12 @@ async function main() {
       'Failed to confirm staking account'
     )
 
-    console.log((await api.query.system.account(StakeKeyPair.address)).toHuman())
+    const balancesBefore = await api.derive.balances.all(StakeKeyPair.address)
+    console.log('Staking account balances before apply: ', {
+      available: balancesBefore.availableBalance.toNumber(),
+      locked: balancesBefore.lockedBalance.toNumber(),
+      total: balancesBefore.votingBalance.toNumber(),
+    })
 
     // Apply to lead opening
     console.log(`Applying to ${groupModule} lead opening...`)
@@ -136,13 +140,20 @@ async function main() {
       'Failed to apply on lead opening!'
     )
 
+    const balancesAfter = await api.derive.balances.all(StakeKeyPair.address)
+    console.log('Staking account balances after apply: ', {
+      available: balancesAfter.availableBalance.toNumber(),
+      locked: balancesAfter.lockedBalance.toNumber(),
+      total: balancesAfter.votingBalance.toNumber(),
+    })
+
     const applicationId = applicationRes.findRecord(groupModule, 'AppliedOnOpening')!.event.data[1] as ApplicationId
 
     // Fill opening
     console.log('Filling the opening...')
     await txHelper.sendAndCheck(
       LeadKeyPair,
-      [sudo(api.tx[groupModule].fillOpening(openingId, new (BTreeSet.with(ApplicationId))(registry, [applicationId])))],
+      [sudo(api.tx[groupModule].fillOpening(openingId, createType('BTreeSet<ApplicationId>', [applicationId])))],
       'Failed to fill the opening'
     )
   }
